@@ -1,0 +1,19 @@
+model:
+  default: "xiaomi/mimo-v2.5-pro"
+  provider: "openrouter"
+  base_url: "https://openrouter.ai/api/v1"
+  api_mode: "chat_completions"
+toolsets:
+  - hermes-cli
+  - kanban
+terminal:
+  backend: local
+  cwd: /root/magnarab-laundry
+display:
+  platforms:
+    telegram:
+      tool_progress: off
+      busy_ack_detail: false
+      interim_assistant_messages: true
+      long_running_notifications: true
+      cleanup_progress: true

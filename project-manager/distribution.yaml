@@ -1,0 +1,19 @@
+name: project-manager
+version: 1.0.0
+description: "Autonomous development team project manager, coordinator, GitHub monitor, and Telegram-facing owner interface."
+hermes_requires: ">=0.12.0"
+author: "Local autonomous development team"
+license: "Private"
+env_requires:
+  - name: TELEGRAM_BOT_TOKEN
+    description: "Telegram bot token from BotFather for the PM gateway."
+    required: true
+  - name: TELEGRAM_ALLOWED_USERS
+    description: "Comma-separated Telegram numeric user IDs allowed to control the PM bot."
+    required: false
+    default: ""
+  - name: GITHUB_TOKEN
+    description: "GitHub token for issues, PRs, and CI/project monitoring if GitHub MCP or CLI auth is used."
+    required: false
+    default: ""
+

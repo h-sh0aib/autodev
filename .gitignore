@@ -1,0 +1,41 @@
+# Runtime secrets
+.env
+.env.*
+!.env.EXAMPLE
+auth.json
+auth.lock
+channel_directory.json
+gateway.lock
+gateway_state.json
+
+# Hermes runtime state
+state.db*
+processes.json
+sessions/
+logs/
+cache/
+cron/
+memories/
+models_dev_cache.json
+.update_check
+.clean_shutdown
+.skills_prompt_snapshot.json
+
+# Generated/local home state
+home/
+lsp/node_modules/
+lsp/package-lock.json
+skills/.hub/
+skills/.usage.json*
+skills/.curator_state
+skills/.bundled_manifest
+
+# Common generated files
+__pycache__/
+*.py[cod]
+*.log
+*.sqlite
+*.sqlite-*
+node_modules/
+.DS_Store
+

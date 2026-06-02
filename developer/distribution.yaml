@@ -1,0 +1,12 @@
+name: developer
+version: 1.0.0
+description: "Autonomous development agent that delegates all architecture, coding, debugging, and tests to Codex."
+hermes_requires: ">=0.12.0"
+author: "Local autonomous development team"
+license: "Private"
+env_requires:
+  - name: GITHUB_TOKEN
+    description: "GitHub token for issues, branches, PRs, CI, and review comments if GitHub MCP or CLI auth is used."
+    required: false
+    default: ""
+

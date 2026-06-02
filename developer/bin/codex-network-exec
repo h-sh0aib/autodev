@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [ "$#" -lt 2 ]; then
+  echo "Usage: codex-network-exec <repo-dir> <prompt-file> [extra codex exec args...]" >&2
+  exit 2
+fi
+
+repo_dir="$1"
+prompt_file="$2"
+shift 2
+
+if [ ! -d "$repo_dir/.git" ]; then
+  echo "codex-network-exec: repo-dir must be a git repository: $repo_dir" >&2
+  exit 2
+fi
+
+if [ ! -f "$prompt_file" ]; then
+  echo "codex-network-exec: prompt file not found: $prompt_file" >&2
+  exit 2
+fi
+
+export CODEX_HOME="${CODEX_HOME:-/root/.codex}"
+
+exec codex exec \
+  --sandbox danger-full-access \
+  --ask-for-approval never \
+  -C "$repo_dir" \
+  "$@" \
+  - < "$prompt_file"
