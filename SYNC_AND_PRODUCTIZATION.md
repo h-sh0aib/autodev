@@ -1,279 +1,165 @@
-# Autonomous Team Package Sync And Productization
+# Sync And Productization
 
-This document describes how to treat `/root/hermes-autonomous-dev-team` as the source package for the autonomous development team, while treating `/root/.hermes/profiles/*` as installed runtime state.
+This repo is the source package for the reusable autonomous Hermes development team. Installed profiles and project state under `~/.hermes` are runtime state.
 
-## Directory Roles
-
-### Source Package
-
-`/root/hermes-autonomous-dev-team`
-
-This should become the Git repository for the autonomous team package.
+## Source Package
 
 Commit:
 
+- `install.sh`
+- `wizard.sh`
+- `scripts/`
+- `templates/`
+- `setup.example.env`
+- `docs/`
+- `README.md`
+- `NEXT_STEPS.md`
+- `SYNC_AND_PRODUCTIZATION.md`
 - `project-manager/SOUL.md`
 - `project-manager/config.yaml`
 - `project-manager/distribution.yaml`
-- `project-manager/skills/**`
+- `project-manager/.env.EXAMPLE`
+- `project-manager/skills/`
 - `developer/SOUL.md`
 - `developer/config.yaml`
 - `developer/distribution.yaml`
-- `developer/bin/**`
-- `developer/skills/**`
+- `developer/.env.EXAMPLE`
+- `developer/bin/`
+- `developer/skills/`
 - `tester/SOUL.md`
 - `tester/config.yaml`
 - `tester/distribution.yaml`
-- `tester/skills/**`
-- Documentation such as this file
-- Reusable scripts that are safe to ship
+- `tester/.env.EXAMPLE`
+- `tester/skills/`
 
 Do not commit:
 
-- API keys
-- OAuth tokens
-- Telegram bot tokens
-- GitHub tokens
-- `.env` files with real secrets
-- profile `state.db`
-- sessions
-- logs
-- cache
-- generated model catalogs
-- runtime process files
+- Real `.env` files.
+- API keys, OAuth files, Telegram tokens, Signal credentials, or GitHub tokens.
+- `~/.hermes/profiles/*/state.db`.
+- Sessions, logs, caches, process files, model catalogs, or auth files.
+- Project repos or project-specific progress data.
+- Hermes Kanban runtime databases.
 
-### Runtime Profiles
+## Runtime Profiles
 
-`/root/.hermes/profiles/project-manager`
-`/root/.hermes/profiles/developer`
-`/root/.hermes/profiles/tester`
-
-These are the installed profiles that Hermes actually runs.
-
-They contain:
-
-- Runtime `SOUL.md`
-- Runtime `config.yaml`
-- Active skills
-- `.env`
-- auth files
-- cron jobs
-- logs
-- sessions
-- state databases
-- caches
-
-Treat these as mutable runtime state, not the Git source of truth.
-
-## Recommended Git Setup
-
-From the source package directory:
+Hermes installs and runs profiles from:
 
 ```bash
-cd /root/hermes-autonomous-dev-team
-git init
-git add README.md NEXT_STEPS.md SYNC_AND_PRODUCTIZATION.md
-git add project-manager developer tester run-pm-gateway.sh
-git add disabled-project-manager-skills disabled-developer-skills
-git commit -m "chore: initial autonomous Hermes dev team package"
+~/.hermes/profiles/project-manager
+~/.hermes/profiles/developer
+~/.hermes/profiles/tester
 ```
 
-Add a remote when ready:
+These directories contain package-owned files plus mutable runtime state. Treat them as installed output, not the long-term source of truth.
+
+Refresh runtime profiles from this package:
 
 ```bash
-git remote add origin git@github.com:<org>/<repo>.git
-git push -u origin main
+./wizard.sh --skip-project
 ```
 
-For a productized version, use a private repository first. Move secrets, client names, and project-specific defaults into templates or environment variables before making it public or selling it.
-
-## Source To Runtime Sync
-
-Use this when you change the source package and want to update installed profiles.
+Or use the lower-level installer:
 
 ```bash
-hermes profile install /root/hermes-autonomous-dev-team/project-manager --name project-manager --alias
-hermes profile install /root/hermes-autonomous-dev-team/developer --name developer --alias
-hermes profile install /root/hermes-autonomous-dev-team/tester --name tester --alias
+./install.sh -y --force
 ```
 
-If profile install overwrites too much runtime state for your setup, sync only the managed files:
+Or install a single profile with Hermes directly:
 
 ```bash
-cp /root/hermes-autonomous-dev-team/project-manager/SOUL.md /root/.hermes/profiles/project-manager/SOUL.md
-cp /root/hermes-autonomous-dev-team/project-manager/config.yaml /root/.hermes/profiles/project-manager/config.yaml
-rsync -a --delete /root/hermes-autonomous-dev-team/project-manager/skills/ /root/.hermes/profiles/project-manager/skills/
-
-cp /root/hermes-autonomous-dev-team/developer/SOUL.md /root/.hermes/profiles/developer/SOUL.md
-cp /root/hermes-autonomous-dev-team/developer/config.yaml /root/.hermes/profiles/developer/config.yaml
-rsync -a --delete /root/hermes-autonomous-dev-team/developer/bin/ /root/.hermes/profiles/developer/bin/
-rsync -a --delete /root/hermes-autonomous-dev-team/developer/skills/ /root/.hermes/profiles/developer/skills/
-
-cp /root/hermes-autonomous-dev-team/tester/SOUL.md /root/.hermes/profiles/tester/SOUL.md
-cp /root/hermes-autonomous-dev-team/tester/config.yaml /root/.hermes/profiles/tester/config.yaml
-rsync -a --delete /root/hermes-autonomous-dev-team/tester/skills/ /root/.hermes/profiles/tester/skills/
+hermes profile install ./project-manager --name project-manager --alias --force -y
+hermes profile install ./developer --name developer --alias --force -y
+hermes profile install ./tester --name tester --alias --force -y
 ```
 
-Be careful with `--delete`: it makes runtime skills match the source package. Use it only when source is the intended authority.
+Hermes profile distribution docs support package-owned files such as `SOUL.md`, `config.yaml`, `distribution.yaml`, `.env.EXAMPLE`, `skills/`, and profile helper directories. Runtime `.env` and auth/session data should remain outside Git.
 
 ## Runtime To Source Sync
 
-Use this when you tune the live profiles directly and want to preserve those changes in the package repo.
+If you tune a live profile directly and want to keep the change, copy only package-owned files back into this repo, inspect the diff, and commit it.
+
+Example:
 
 ```bash
-cp /root/.hermes/profiles/project-manager/SOUL.md /root/hermes-autonomous-dev-team/project-manager/SOUL.md
-cp /root/.hermes/profiles/project-manager/config.yaml /root/hermes-autonomous-dev-team/project-manager/config.yaml
-rsync -a --delete /root/.hermes/profiles/project-manager/skills/ /root/hermes-autonomous-dev-team/project-manager/skills/
+cp ~/.hermes/profiles/project-manager/SOUL.md ./project-manager/SOUL.md
+cp ~/.hermes/profiles/project-manager/config.yaml ./project-manager/config.yaml
+rsync -a --delete ~/.hermes/profiles/project-manager/skills/ ./project-manager/skills/
 
-cp /root/.hermes/profiles/developer/SOUL.md /root/hermes-autonomous-dev-team/developer/SOUL.md
-cp /root/.hermes/profiles/developer/config.yaml /root/hermes-autonomous-dev-team/developer/config.yaml
-rsync -a --delete /root/.hermes/profiles/developer/bin/ /root/hermes-autonomous-dev-team/developer/bin/
-rsync -a --delete /root/.hermes/profiles/developer/skills/ /root/hermes-autonomous-dev-team/developer/skills/
-
-cp /root/.hermes/profiles/tester/SOUL.md /root/hermes-autonomous-dev-team/tester/SOUL.md
-cp /root/.hermes/profiles/tester/config.yaml /root/hermes-autonomous-dev-team/tester/config.yaml
-rsync -a --delete /root/.hermes/profiles/tester/skills/ /root/hermes-autonomous-dev-team/tester/skills/
-```
-
-Before committing, inspect diffs carefully:
-
-```bash
-cd /root/hermes-autonomous-dev-team
 git status --short
 git diff
 ```
 
-Never copy runtime `.env`, `auth.json`, `state.db`, `sessions`, `logs`, `cache`, or `processes.json` into the source package.
+Never copy `.env`, `auth.json`, `state.db`, `sessions`, `logs`, `cache`, or `processes.json` into the package.
 
-## Server Reproduction Workflow
-
-On a new server:
-
-1. Install Hermes Agent.
-2. Clone the autonomous team package:
+## New VPS Workflow
 
 ```bash
-git clone git@github.com:<org>/<repo>.git /root/hermes-autonomous-dev-team
+git clone git@github.com:<org>/<repo>.git hermes-autonomous-dev-team
+cd hermes-autonomous-dev-team
+./wizard.sh
 ```
 
-3. Install the profiles:
+For non-interactive/client handoff installs:
 
 ```bash
-hermes profile install /root/hermes-autonomous-dev-team/project-manager --name project-manager --alias
-hermes profile install /root/hermes-autonomous-dev-team/developer --name developer --alias
-hermes profile install /root/hermes-autonomous-dev-team/tester --name tester --alias
+cp setup.example.env client.env
+nano client.env
+./wizard.sh --config client.env --non-interactive
 ```
 
-4. Configure secrets in runtime `.env` files only:
+Then bootstrap additional projects as needed:
 
 ```bash
-cp /root/.hermes/profiles/project-manager/.env.EXAMPLE /root/.hermes/profiles/project-manager/.env
-cp /root/.hermes/profiles/developer/.env.EXAMPLE /root/.hermes/profiles/developer/.env
-cp /root/.hermes/profiles/tester/.env.EXAMPLE /root/.hermes/profiles/tester/.env
+./wizard.sh --skip-install
 ```
 
-5. Add required credentials:
+Run the setup script again for more projects. Do not duplicate the profile distributions for each project.
 
-- Project Manager: Telegram bot token, allowed users, model provider key, GitHub token if needed.
-- Developer: model provider key, GitHub token if needed, Codex auth or `CODEX_HOME`.
-- Tester: model provider key, GitHub token if needed.
+## Project Runtime State
 
-6. Authenticate any provider-specific tools:
+Per-project runtime files are created under:
 
 ```bash
-project-manager setup
-developer setup
-tester setup
+~/.hermes/autodev/projects/<slug>.env
+~/.hermes/scripts/autodev_watchdog_<slug>.sh
 ```
 
-7. Verify Codex for Developer:
+Project cron jobs live in the Project Manager profile's Hermes cron state. Project tasks live in Hermes Kanban state. Project code lives in the project repo.
 
-```bash
-developer -z "Run codex --version and report whether codex-network-exec exists. Do not edit files."
-```
+That split is deliberate:
 
-8. Start the PM gateway only when ready:
-
-```bash
-project-manager gateway start
-```
+- Package repo: reusable team behavior.
+- Runtime Hermes state: installed profiles, cron jobs, boards, secrets, sessions.
+- Project repo: application code and project-specific docs.
 
 ## Productization Notes
 
-To make this reusable for other projects or companies, separate the package into layers:
+Keep the package private until all personal contact details, client names, trial project references, and secrets are removed. The package should remain generic:
 
-### Core Team Package
+- No hard-coded owner phone numbers or chat IDs.
+- No hard-coded project repository path.
+- No trial project progress or Kanban state.
+- No customer-specific docs or feature lists.
+- No real tokens.
 
-Reusable across customers:
+Use `README.md` for install instructions, `docs/hermes-docs-cross-reference.md` for Hermes design rationale, and `NEXT_STEPS.md` as the short operational checklist.
 
-- Project Manager role contract
-- Developer Codex-only contract
-- Tester Playwright-only contract
-- Codex network wrapper
-- PM monitoring rules
-- Kanban operating rules
-- Generic scripts and documentation
+## Selling To Non-Technical Clients
 
-### Project Template
+Use `wizard.sh` as the client-facing entrypoint. It configures all profile env files from one prompt flow, optionally sets Git identity, writes GitHub/Codex/Telegram/Signal values to the right profiles, bootstraps the first project, creates watchdog/PM sweep cron jobs, and attempts to start the PM gateway.
 
-Specific to one software project:
-
-- Project workspace path
-- GitHub repo
-- acceptance criteria defaults
-- domain-specific quality bar
-- testing personas
-- deployment commands
-- model/provider preferences
-
-### Customer Runtime
-
-Never committed:
-
-- credentials
-- tokens
-- chat IDs
-- customer data
-- logs
-- sessions
-- local task state
-
-## Suggested Package Variables
-
-Replace hardcoded paths with template variables before selling or distributing:
-
-- `AUTODEV_PROJECT_ROOT`
-- `AUTODEV_GITHUB_REPO`
-- `AUTODEV_KANBAN_BOARD`
-- `AUTODEV_PM_PROFILE`
-- `AUTODEV_DEVELOPER_PROFILE`
-- `AUTODEV_TESTER_PROFILE`
-- `AUTODEV_MODEL`
-- `AUTODEV_PROVIDER`
-- `AUTODEV_ALLOWED_USER_IDS`
-
-## Usage Logs
-
-Hermes session-level token usage is available through:
+For white-glove installs, pre-fill `client.env` from `setup.example.env` and run:
 
 ```bash
-hermes -p project-manager insights --days 7
-hermes -p developer insights --days 7
-hermes -p tester insights --days 7
+./wizard.sh --config client.env --non-interactive
 ```
 
-The local Hermes patch also writes per-LLM-call rows to:
+For package updates after profile, skill, markdown, or script changes:
 
-```text
-/root/.hermes/profiles/<profile>/logs/llm-usage.jsonl
+```bash
+git pull
+./wizard.sh --skip-project
 ```
 
-Each row includes profile, session id, model, provider, input tokens, output tokens, cache tokens, reasoning tokens, latency, and estimated cost metadata when available.
-
-For productization, either upstream this patch into your Hermes fork or provide it as a documented patch step for every deployment.
-
-## Operational Rule
-
-Do not edit runtime profiles directly for long-term behavior unless you immediately sync the change back to `/root/hermes-autonomous-dev-team` and commit it.
-
-Runtime is where the team runs. Source is where the team is defined.
+If env examples gain new keys, the wizard is the place to add prompts and profile env writes so clients never have to edit profile folders manually.

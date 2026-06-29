@@ -20,7 +20,7 @@ if [ ! -f "$prompt_file" ]; then
   exit 2
 fi
 
-export CODEX_HOME="${CODEX_HOME:-/root/.codex}"
+export CODEX_HOME="${CODEX_HOME:-${HOME}/.codex}"
 
 exec codex exec \
   --sandbox danger-full-access \

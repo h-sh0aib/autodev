@@ -8,6 +8,12 @@ toolsets:
   - kanban
 terminal:
   backend: local
-  cwd: /root/magnarab-laundry
+  timeout: 180
+  persistent_shell: true
   env_passthrough:
     - CODEX_HOME
+agent:
+  max_turns: 90
+  gateway_timeout: 1800
+kanban:
+  dispatch_in_gateway: true

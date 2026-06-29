@@ -2,6 +2,9 @@
 .env
 .env.*
 !.env.EXAMPLE
+client.env
+setup.local.env
+*.secrets.env
 auth.json
 auth.lock
 channel_directory.json
@@ -38,4 +41,3 @@ __pycache__/
 *.sqlite-*
 node_modules/
 .DS_Store
-

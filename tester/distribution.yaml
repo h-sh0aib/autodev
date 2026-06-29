@@ -1,12 +1,21 @@
 name: tester
-version: 1.0.0
-description: "Autonomous human-style QA tester using Playwright, PR validation, and production-readiness critique."
+version: 1.1.0
+description: "Reusable report-only QA tester using Playwright/browser validation, PR evidence, and production-readiness critique."
 hermes_requires: ">=0.12.0"
 author: "Local autonomous development team"
 license: "Private"
 env_requires:
+  - name: OPENROUTER_API_KEY
+    description: "OpenRouter API key for the default model provider. Optional if you reconfigure the profile to another provider."
+    required: false
+    default: ""
   - name: GITHUB_TOKEN
     description: "GitHub token for reading PRs, filing defects, and commenting validation evidence if GitHub MCP or CLI auth is used."
     required: false
     default: ""
-
+distribution_owned:
+  - SOUL.md
+  - config.yaml
+  - distribution.yaml
+  - .env.EXAMPLE
+  - skills/

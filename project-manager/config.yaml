@@ -8,8 +8,24 @@ toolsets:
   - kanban
 terminal:
   backend: local
-  cwd: /root/magnarab-laundry
+  timeout: 180
+  persistent_shell: true
+agent:
+  max_turns: 90
+  gateway_timeout: 1800
+  gateway_timeout_warning: 900
+  gateway_notify_interval: 180
+kanban:
+  dispatch_in_gateway: true
+  dispatch_interval_seconds: 60
+  failure_limit: 2
+  auto_decompose: true
+  auto_decompose_per_tick: 3
+  dispatch_stale_timeout_seconds: 14400
 display:
+  streaming: false
+  interim_assistant_messages: true
+  tool_progress: all
   platforms:
     telegram:
       tool_progress: off

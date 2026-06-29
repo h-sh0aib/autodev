@@ -1,45 +1,102 @@
-# Activation Steps
+# Next Steps
 
-The local Hermes install and profiles are initialized. The remaining work is secret/auth setup.
+Use this checklist after cloning the package onto a VPS.
 
-## Required Credentials
-
-Edit `/root/.hermes/profiles/project-manager/.env` and set:
+## 1. Run The Setup Wizard
 
 ```bash
+cd hermes-autonomous-dev-team
+./wizard.sh
+```
+
+This installs or refreshes the `project-manager`, `developer`, and `tester` profiles, configures profile env files from one place, can set Git identity, can help with GitHub/Codex credentials, and can bootstrap the first project.
+
+For non-interactive setup:
+
+```bash
+cp setup.example.env client.env
+nano client.env
+./wizard.sh --config client.env --non-interactive
+```
+
+## 2. Fill Runtime Credentials
+
+The wizard prompts for these, or reads them from `client.env`:
+
+```bash
+OPENROUTER_API_KEY=...
+GITHUB_TOKEN=...
+OPENAI_API_KEY=...
 TELEGRAM_BOT_TOKEN=...
 TELEGRAM_ALLOWED_USERS=...
 ```
 
-Also configure a model provider for each profile, for example by exporting API keys in each profile `.env` or running:
+The wizard writes the right subset into:
 
 ```bash
-project-manager setup
-developer setup
-tester setup
+~/.hermes/profiles/project-manager/.env
+~/.hermes/profiles/developer/.env
+~/.hermes/profiles/tester/.env
 ```
 
-For GitHub issue and PR operations, configure GitHub auth with either `GITHUB_TOKEN` in each profile `.env` or the bundled GitHub auth flow.
+Only the Project Manager should receive owner-facing Telegram or Signal gateway credentials unless you intentionally design otherwise.
 
-For Developer's Codex-only workflow, authenticate Codex for the Developer profile:
+## 3. Verify Codex
+
+Authenticate Codex for the server account:
 
 ```bash
-developer auth
+codex login
+codex exec "echo CODEX_OK"
 ```
 
-## Start Project Manager Gateway
+For headless servers, prefer `OPENAI_API_KEY` in `~/.hermes/profiles/developer/.env` if browser OAuth is impractical.
 
-If user systemd is available on the host:
+## 4. Bootstrap A Project
+
+The wizard can do this interactively. For an existing repo:
 
 ```bash
-project-manager gateway start
+./scripts/setup-project.sh \
+  --project-path /absolute/path/to/repo \
+  --project-slug my-project \
+  --cron \
+  --start-gateway
 ```
 
-If running in a container or environment without a user systemd bus:
+Clone and bootstrap:
 
 ```bash
-/root/hermes-autonomous-dev-team/run-pm-gateway.sh
+./install.sh -y \
+  --repo-url git@github.com:org/app.git \
+  --project-path /srv/app \
+  --project-slug app \
+  --cron \
+  --start-gateway
 ```
 
-Only the Project Manager profile should receive the Telegram bot token. Developer and Tester should operate through Hermes Kanban and GitHub, not through direct Telegram exposure.
+For additional projects after the first:
 
+```bash
+./wizard.sh --skip-install
+```
+
+## 5. Check Health
+
+```bash
+./scripts/doctor.sh --project-slug my-project
+hermes -p project-manager kanban --board my-project list
+hermes -p project-manager cron list --all
+hermes -p project-manager gateway status
+```
+
+## 6. Push The Package Repo
+
+Keep this package in a private Git repo first. Commit profile distributions, skills, scripts, templates, and docs. Do not commit runtime secrets, sessions, logs, Kanban databases, auth files, or project repos.
+
+To update a client VPS after package changes:
+
+```bash
+git pull
+./wizard.sh --skip-project
+```

@@ -146,7 +146,7 @@ codex-network-exec /absolute/path/to/repo /absolute/path/to/prompt.md
 If `codex-network-exec` is not on `PATH`, use the installed profile path:
 
 ```bash
-/root/.hermes/profiles/developer/bin/codex-network-exec /absolute/path/to/repo /absolute/path/to/prompt.md
+~/.hermes/profiles/developer/bin/codex-network-exec /absolute/path/to/repo /absolute/path/to/prompt.md
 ```
 
 This wrapper runs:
@@ -195,7 +195,7 @@ Constraints:
 - Run relevant validation commands.
 - Use the network-enabled Codex invocation for implementation and verification:
   `codex-network-exec <repo> <prompt-file>` or
-  `/root/.hermes/profiles/developer/bin/codex-network-exec <repo> <prompt-file>`.
+  `~/.hermes/profiles/developer/bin/codex-network-exec <repo> <prompt-file>`.
 
 Files or areas likely involved:
 - [Path or module]

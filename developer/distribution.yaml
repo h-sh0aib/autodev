@@ -1,12 +1,30 @@
 name: developer
-version: 1.0.0
-description: "Autonomous development agent that delegates all architecture, coding, debugging, and tests to Codex."
+version: 1.1.0
+description: "Reusable autonomous development agent that delegates architecture, coding, debugging, validation, and docs to Codex."
 hermes_requires: ">=0.12.0"
 author: "Local autonomous development team"
 license: "Private"
 env_requires:
+  - name: OPENROUTER_API_KEY
+    description: "OpenRouter API key for the default Hermes model provider. Optional if you reconfigure the profile to another provider."
+    required: false
+    default: ""
   - name: GITHUB_TOKEN
     description: "GitHub token for issues, branches, PRs, CI, and review comments if GitHub MCP or CLI auth is used."
     required: false
     default: ""
-
+  - name: CODEX_HOME
+    description: "Optional Codex config/auth directory for codex-network-exec. Leave blank to use the server account's ~/.codex."
+    required: false
+    default: ""
+  - name: OPENAI_API_KEY
+    description: "Optional API key for Codex CLI on headless servers if you do not use Codex OAuth."
+    required: false
+    default: ""
+distribution_owned:
+  - SOUL.md
+  - config.yaml
+  - distribution.yaml
+  - .env.EXAMPLE
+  - bin/
+  - skills/
