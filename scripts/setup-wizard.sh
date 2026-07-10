@@ -9,6 +9,8 @@ NON_INTERACTIVE=0
 SKIP_INSTALL=0
 SKIP_PROJECT=0
 FORCE_INSTALL=1
+LOG_FILE=""
+NO_LOG=0
 
 usage() {
   cat <<'EOF'
@@ -23,6 +25,8 @@ Options:
   --skip-install        Do not install/update Hermes profiles.
   --skip-project        Configure profiles only; do not bootstrap a project.
   --no-force            Do not pass --force to profile install.
+  --log-file FILE       Write setup transcript to FILE.
+  --no-log              Do not write a setup transcript.
   -h, --help            Show this help.
 
 Examples:
@@ -54,6 +58,14 @@ while [[ $# -gt 0 ]]; do
       FORCE_INSTALL=0
       shift
       ;;
+    --log-file)
+      LOG_FILE="$2"
+      shift 2
+      ;;
+    --no-log)
+      NO_LOG=1
+      shift
+      ;;
     -h|--help)
       usage
       exit 0
@@ -65,6 +77,55 @@ while [[ $# -gt 0 ]]; do
       ;;
   esac
 done
+
+start_logging() {
+  [[ "${NO_LOG}" -eq 0 ]] || return 0
+
+  if [[ -z "${LOG_FILE}" ]]; then
+    local log_dir ts
+    log_dir="${HOME}/.hermes/autodev/logs"
+    ts="$(date -u +%Y%m%dT%H%M%SZ)"
+    mkdir -p "${log_dir}"
+    LOG_FILE="${log_dir}/setup-wizard-${ts}.log"
+  else
+    mkdir -p "$(dirname "${LOG_FILE}")"
+  fi
+
+  touch "${LOG_FILE}"
+  chmod 0600 "${LOG_FILE}" || true
+
+  exec > >(tee -a "${LOG_FILE}") 2>&1
+
+  echo "=== Hermes autonomous dev team setup wizard ==="
+  echo "Started: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  echo "User: $(id -un 2>/dev/null || true)"
+  echo "Host: $(hostname 2>/dev/null || true)"
+  echo "Working directory: $(pwd)"
+  echo "Package directory: ${ROOT_DIR}"
+  echo "Log file: ${LOG_FILE}"
+  echo
+}
+
+on_error() {
+  local status="$?"
+  local line="${BASH_LINENO[0]:-unknown}"
+  echo
+  echo "ERROR: setup wizard failed at line ${line} with exit status ${status}."
+  exit "${status}"
+}
+
+on_exit() {
+  local status="$?"
+  [[ "${NO_LOG}" -eq 0 && -n "${LOG_FILE}" ]] || return 0
+  echo
+  echo "Finished: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  echo "Exit status: ${status}"
+  echo "Setup log: ${LOG_FILE}"
+}
+
+trap on_error ERR
+trap on_exit EXIT
+start_logging
 
 trim() {
   local value="$1"
@@ -477,7 +538,7 @@ if [[ "${SKIP_INSTALL}" -eq 0 ]]; then
   "${ROOT_DIR}/install.sh" "${install_args[@]}"
 fi
 
-set_default_from_profiles OPENROUTER_API_KEY OPENROUTER_API_KEY project-manager developer tester
+set_default_from_profiles OPENROUTER_API_KEY OPENROUTER_API_KEY project-manager frontend-designer developer tester
 set_default_from_profiles GITHUB_TOKEN GITHUB_TOKEN project-manager developer tester
 set_default_from_profiles TELEGRAM_BOT_TOKEN TELEGRAM_BOT_TOKEN project-manager
 set_default_from_profiles TELEGRAM_ALLOWED_USERS TELEGRAM_ALLOWED_USERS project-manager
@@ -486,8 +547,8 @@ set_default_from_profiles SIGNAL_ACCOUNT SIGNAL_ACCOUNT project-manager
 set_default_from_profiles SIGNAL_ALLOWED_USERS SIGNAL_ALLOWED_USERS project-manager
 set_default_from_profiles CODEX_HOME CODEX_HOME developer
 set_default_from_profiles OPENAI_API_KEY OPENAI_API_KEY developer
-set_default_from_profiles HERMES_LOG_LLM_OUTPUTS HERMES_LOG_LLM_OUTPUTS project-manager developer tester
-set_default_from_profiles HERMES_LLM_OUTPUT_LOG_MAX_CHARS HERMES_LLM_OUTPUT_LOG_MAX_CHARS project-manager developer tester
+set_default_from_profiles HERMES_LOG_LLM_OUTPUTS HERMES_LOG_LLM_OUTPUTS project-manager frontend-designer developer tester
+set_default_from_profiles HERMES_LLM_OUTPUT_LOG_MAX_CHARS HERMES_LLM_OUTPUT_LOG_MAX_CHARS project-manager frontend-designer developer tester
 HERMES_LOG_LLM_OUTPUTS="${HERMES_LOG_LLM_OUTPUTS:-0}"
 HERMES_LLM_OUTPUT_LOG_MAX_CHARS="${HERMES_LLM_OUTPUT_LOG_MAX_CHARS:-20000}"
 export HERMES_LOG_LLM_OUTPUTS HERMES_LLM_OUTPUT_LOG_MAX_CHARS
@@ -510,6 +571,9 @@ prompt_text SIGNAL_ALLOWED_USERS "Signal allowed users (optional)" "${SIGNAL_ALL
 write_profile_env "${HOME}/.hermes/profiles/project-manager/.env" \
   OPENROUTER_API_KEY TELEGRAM_BOT_TOKEN TELEGRAM_ALLOWED_USERS GITHUB_TOKEN \
   SIGNAL_HTTP_URL SIGNAL_ACCOUNT SIGNAL_ALLOWED_USERS \
+  HERMES_LOG_LLM_OUTPUTS HERMES_LLM_OUTPUT_LOG_MAX_CHARS
+write_profile_env "${HOME}/.hermes/profiles/frontend-designer/.env" \
+  OPENROUTER_API_KEY \
   HERMES_LOG_LLM_OUTPUTS HERMES_LLM_OUTPUT_LOG_MAX_CHARS
 write_profile_env "${HOME}/.hermes/profiles/developer/.env" \
   OPENROUTER_API_KEY GITHUB_TOKEN CODEX_HOME OPENAI_API_KEY \

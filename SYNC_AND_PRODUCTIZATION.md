@@ -20,6 +20,11 @@ Commit:
 - `project-manager/distribution.yaml`
 - `project-manager/.env.EXAMPLE`
 - `project-manager/skills/`
+- `frontend-designer/SOUL.md`
+- `frontend-designer/config.yaml`
+- `frontend-designer/distribution.yaml`
+- `frontend-designer/.env.EXAMPLE`
+- `frontend-designer/skills/`
 - `developer/SOUL.md`
 - `developer/config.yaml`
 - `developer/distribution.yaml`
@@ -47,6 +52,7 @@ Hermes installs and runs profiles from:
 
 ```bash
 ~/.hermes/profiles/project-manager
+~/.hermes/profiles/frontend-designer
 ~/.hermes/profiles/developer
 ~/.hermes/profiles/tester
 ```
@@ -69,11 +75,12 @@ Or install a single profile with Hermes directly:
 
 ```bash
 hermes profile install ./project-manager --name project-manager --alias --force -y
+hermes profile install ./frontend-designer --name frontend-designer --alias --force -y
 hermes profile install ./developer --name developer --alias --force -y
 hermes profile install ./tester --name tester --alias --force -y
 ```
 
-Hermes profile distribution docs support package-owned files such as `SOUL.md`, `config.yaml`, `distribution.yaml`, `.env.EXAMPLE`, `skills/`, and profile helper directories. Runtime `.env` and auth/session data should remain outside Git.
+Hermes profile distributions support package-owned files such as `SOUL.md`, `config.yaml`, `distribution.yaml`, `.env.EXAMPLE`, and `skills/`. The team installer separately copies Developer's Codex launcher because Hermes treats profile-level `bin/` as runtime-owned. Runtime `.env` and auth/session data should remain outside Git.
 
 ## Runtime To Source Sync
 
@@ -91,6 +98,8 @@ git diff
 ```
 
 Never copy `.env`, `auth.json`, `state.db`, `sessions`, `logs`, `cache`, or `processes.json` into the package.
+
+Do not mirror the Frontend Designer's entire live `skills/` directory. Hermes may populate it with the auto-bundled catalog; keep only the curated team-owned skills needed by the distribution.
 
 ## New VPS Workflow
 
@@ -148,6 +157,8 @@ Use `README.md` for install instructions, `docs/hermes-docs-cross-reference.md` 
 ## Selling To Non-Technical Clients
 
 Use `wizard.sh` as the client-facing entrypoint. It configures all profile env files from one prompt flow, optionally sets Git identity, writes GitHub/Codex/Telegram/Signal values to the right profiles, bootstraps the first project, creates watchdog/PM sweep cron jobs, and attempts to start the PM gateway.
+
+Each wizard run writes a support log under `~/.hermes/autodev/logs/` with `0600` permissions. If a client setup fails, ask for the latest `setup-wizard-*.log` file.
 
 For white-glove installs, pre-fill `client.env` from `setup.example.env` and run:
 

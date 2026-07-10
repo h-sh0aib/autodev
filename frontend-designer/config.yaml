@@ -1,0 +1,41 @@
+model:
+  default: "xiaomi/mimo-v2.5-pro"
+  provider: "openrouter"
+  base_url: "https://openrouter.ai/api/v1"
+  api_mode: "chat_completions"
+toolsets:
+  - hermes-cli
+  - kanban
+terminal:
+  backend: local
+  timeout: 180
+  persistent_shell: true
+agent:
+  max_turns: 60
+  gateway_timeout: 1800
+mcp_servers:
+  lovable:
+    url: "https://mcp.lovable.dev"
+    auth: oauth
+    enabled: true
+    connect_timeout: 300
+    timeout: 600
+    supports_parallel_tool_calls: false
+    tools:
+      include:
+        - get_me
+        - list_workspaces
+        - get_workspace
+        - list_projects
+        - get_project
+        - create_project
+        - send_message
+        - get_message
+        - get_diff
+        - list_files
+        - read_file
+        - list_edits
+      resources: false
+      prompts: false
+kanban:
+  dispatch_in_gateway: true

@@ -44,7 +44,7 @@ else
   status=1
 fi
 
-for profile in project-manager developer tester; do
+for profile in project-manager frontend-designer developer tester; do
   if [[ -d "${HOME}/.hermes/profiles/${profile}" ]]; then
     ok "profile installed: ${profile}"
   else
@@ -53,7 +53,7 @@ for profile in project-manager developer tester; do
   fi
 done
 
-for profile in project-manager developer tester; do
+for profile in project-manager frontend-designer developer tester; do
   env_file="${HOME}/.hermes/profiles/${profile}/.env"
   if [[ -f "${env_file}" ]]; then
     ok "env file exists: ${env_file}"

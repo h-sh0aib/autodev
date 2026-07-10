@@ -16,6 +16,7 @@ Usage:
 
 Installs the reusable Hermes autonomous development team profiles:
   - project-manager
+  - frontend-designer
   - developer
   - tester
 
@@ -111,14 +112,21 @@ fi
 
 echo "Installing autonomous dev team profiles from ${ROOT_DIR}"
 hermes profile install "${ROOT_DIR}/project-manager" --name project-manager --alias "${profile_install_args[@]}"
+hermes profile install "${ROOT_DIR}/frontend-designer" --name frontend-designer --alias "${profile_install_args[@]}"
 hermes profile install "${ROOT_DIR}/developer" --name developer --alias "${profile_install_args[@]}"
 hermes profile install "${ROOT_DIR}/tester" --name tester --alias "${profile_install_args[@]}"
+
+# Hermes reserves profile-level bin/ as runtime-owned, so install the Codex
+# launcher explicitly instead of relying on profile distribution copying.
+mkdir -p "${HOME}/.hermes/profiles/developer/bin"
+install -m 0755 "${ROOT_DIR}/developer/bin/codex-network-exec" \
+  "${HOME}/.hermes/profiles/developer/bin/codex-network-exec"
 
 mkdir -p "${HOME}/.hermes/scripts" "${HOME}/.hermes/autodev/projects"
 install -m 0755 "${ROOT_DIR}/scripts/hermes_autodev_watchdog_common.sh" \
   "${HOME}/.hermes/scripts/hermes_autodev_watchdog_common.sh"
 
-for profile in project-manager developer tester; do
+for profile in project-manager frontend-designer developer tester; do
   env_example="${HOME}/.hermes/profiles/${profile}/.env.EXAMPLE"
   env_file="${HOME}/.hermes/profiles/${profile}/.env"
   if [[ -f "${env_example}" && ! -f "${env_file}" ]]; then
