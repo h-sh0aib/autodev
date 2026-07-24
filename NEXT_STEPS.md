@@ -9,7 +9,7 @@ cd hermes-autonomous-dev-team
 ./wizard.sh
 ```
 
-This installs or refreshes the `project-manager`, `frontend-designer`, `developer`, and `tester` profiles, configures profile env files from one place, can set Git identity, can help with GitHub/Codex credentials, and can bootstrap the first project.
+This installs or refreshes the `project-manager`, `frontend-designer`, `developer`, `tester`, and `security-tester` profiles, configures profile env files from one place, can set Git identity, can help with GitHub/Codex credentials, and can bootstrap the first project.
 
 Every wizard run writes a setup transcript under:
 
@@ -44,11 +44,14 @@ The wizard writes the right subset into:
 ~/.hermes/profiles/frontend-designer/.env
 ~/.hermes/profiles/developer/.env
 ~/.hermes/profiles/tester/.env
+~/.hermes/profiles/security-tester/.env
 ```
 
 Only the Project Manager should receive owner-facing Telegram or Signal gateway credentials unless you intentionally design otherwise.
 
 Lovable uses OAuth rather than a value in these env files. Authenticate the Frontend Designer's `lovable` MCP connection before assigning its first design task. It is optional for projects that do not need initial UI design guidance.
+
+Security Tester uses `moonshotai/kimi-k3` through the shared `OPENROUTER_API_KEY`. Global scanners are optional and are not installed by the package; see [docs/security-testing.md](docs/security-testing.md) before assigning dynamic testing, especially for the required target scope and production restrictions.
 
 ## 3. Verify Codex
 

@@ -19,6 +19,7 @@ Installs the reusable Hermes autonomous development team profiles:
   - frontend-designer
   - developer
   - tester
+  - security-tester
 
 Options:
   --install-hermes        Install Hermes if the hermes command is missing.
@@ -115,6 +116,7 @@ hermes profile install "${ROOT_DIR}/project-manager" --name project-manager --al
 hermes profile install "${ROOT_DIR}/frontend-designer" --name frontend-designer --alias "${profile_install_args[@]}"
 hermes profile install "${ROOT_DIR}/developer" --name developer --alias "${profile_install_args[@]}"
 hermes profile install "${ROOT_DIR}/tester" --name tester --alias "${profile_install_args[@]}"
+hermes profile install "${ROOT_DIR}/security-tester" --name security-tester --alias "${profile_install_args[@]}"
 
 # Hermes reserves profile-level bin/ as runtime-owned, so install the Codex
 # launcher explicitly instead of relying on profile distribution copying.
@@ -126,7 +128,7 @@ mkdir -p "${HOME}/.hermes/scripts" "${HOME}/.hermes/autodev/projects"
 install -m 0755 "${ROOT_DIR}/scripts/hermes_autodev_watchdog_common.sh" \
   "${HOME}/.hermes/scripts/hermes_autodev_watchdog_common.sh"
 
-for profile in project-manager frontend-designer developer tester; do
+for profile in project-manager frontend-designer developer tester security-tester; do
   env_example="${HOME}/.hermes/profiles/${profile}/.env.EXAMPLE"
   env_file="${HOME}/.hermes/profiles/${profile}/.env"
   if [[ -f "${env_example}" && ! -f "${env_file}" ]]; then

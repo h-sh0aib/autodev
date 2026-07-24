@@ -1,0 +1,21 @@
+name: security-tester
+version: 1.0.0
+description: "Reusable report-only application security tester using Kimi K3, risk-based OWASP verification, safe tooling, and actionable remediation evidence."
+hermes_requires: ">=0.12.0"
+author: "Local autonomous development team"
+license: "Private"
+env_requires:
+  - name: OPENROUTER_API_KEY
+    description: "OpenRouter API key used to run the configured moonshotai/kimi-k3 model."
+    required: false
+    default: ""
+  - name: GITHUB_TOKEN
+    description: "GitHub token for reading PRs and filing restricted security findings or remediation issues when GitHub integration is used."
+    required: false
+    default: ""
+distribution_owned:
+  - SOUL.md
+  - config.yaml
+  - distribution.yaml
+  - .env.EXAMPLE
+  - skills/

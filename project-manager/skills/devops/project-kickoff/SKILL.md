@@ -1,7 +1,7 @@
 ---
 name: project-kickoff
 description: Generic Project Manager workflow for starting a new software project after the autonomous dev team package has created the Hermes Kanban board, watchdog, and cron sweep.
-version: 1.2.0
+version: 1.3.0
 metadata:
   triggers:
     - A new project board has an "Initialize autonomous development workstream" task
@@ -12,7 +12,7 @@ metadata:
 
 # Project Kickoff
 
-Use this workflow as the `project-manager` profile when starting a new project. The reusable package handles installation, profile setup, board creation, watchdog scripts, and recurring PM cron. Your job is to convert the project brief into durable project context and a small number of high-quality Frontend Designer, Developer, and Tester tasks.
+Use this workflow as the `project-manager` profile when starting a new project. The reusable package handles installation, profile setup, board creation, watchdog scripts, and recurring PM cron. Your job is to convert the project brief into durable project context and a small number of high-quality Frontend Designer, Developer, Tester, and Security Tester tasks.
 
 ## 1. Confirm The Workstream
 
@@ -20,7 +20,7 @@ Before assigning work:
 
 - Confirm the active Kanban board and repository path.
 - Read the kickoff task body, repo README, existing `AGENTS.md`, and any supplied requirements.
-- Check `hermes profile list` and confirm `project-manager`, `frontend-designer`, `developer`, and `tester` exist.
+- Check `hermes profile list` and confirm `project-manager`, `frontend-designer`, `developer`, `tester`, and `security-tester` exist.
 - Check `hermes kanban --board <board> stats` and `hermes cron list --all` to verify the board and autonomous checks are installed.
 - Record any missing credentials, model-provider setup, GitHub auth, deployment accounts, or external provider dependencies as blockers.
 
@@ -54,7 +54,7 @@ Recommended files:
 - `PROGRESS.md`: high-level progress tracker and open blockers.
 - `.env.example`: placeholders only, never real secrets.
 
-The `AGENTS.md` is the most important file because it shapes every Developer and Tester run.
+The `AGENTS.md` is the most important file because it shapes every Developer, Tester, and Security Tester run.
 
 ## 4. Route Work
 
@@ -64,6 +64,7 @@ Create one product-level Developer implementation task by default. Before it, cr
 - A credential or external dependency blocks only part of the work.
 - The first Codex run failed and the work needs narrowing.
 - Tester found a focused defect.
+- Security Tester confirmed a focused vulnerability that needs restricted remediation and retesting.
 
 Frontend Designer task requirements, when design guidance is warranted:
 
@@ -88,6 +89,17 @@ Tester task requirements:
 - Require Playwright/browser validation from a real user perspective.
 - Forbid repo writes, dependency installs, source inspection, database inspection, and attempted fixes.
 - Require screenshots/traces/reproduction steps and a pass/fail recommendation.
+
+Security Tester task requirements:
+
+- Assign to `security-tester` only after there is a reviewable commit/PR; an early source-only threat/control review may run sooner for high-risk architecture.
+- Require the exact repository and commit. Dynamic work also requires an exact authorized target, environment, synthetic identities/data, in/out-of-scope systems, rate/technique limits, and stop conditions.
+- Default authenticated business applications and sensitive or multi-tenant systems to OWASP ASVS Level 2.
+- Require the pinned OWASP/NIST baseline, risk-based selected controls, and passed/failed/not-tested/not-applicable coverage.
+- Keep the task report-only: source-aware review and safe tooling are allowed, but repo changes and fixes are forbidden.
+- Treat production, third parties, destructive tests, brute force, denial-of-service, persistence, bulk-data access, and real-customer data as out of scope unless the Security Tester profile's stricter written-authorization rules are satisfied.
+- Require redacted evidence outside the application repo, manual scanner triage, actionable restricted findings, and a scoped pass/pass-with-risk-notes/fail/incomplete recommendation.
+- Route confirmed findings to `developer` for Codex remediation and create a dependent `security-tester` retest.
 
 ## 5. Monitor
 
@@ -117,7 +129,9 @@ Do not mark project work ready until:
 - Requested workflows are implemented through the real product surface.
 - Relevant build/lint/typecheck/test commands pass.
 - User-facing changes have Playwright evidence from Tester.
-- Critical and high-severity defects are fixed and re-tested.
+- Risk-appropriate security coverage is complete on the release candidate.
+- Critical and high-severity functional defects are fixed and re-tested.
+- Confirmed critical/high security findings are fixed and independently retested, or the human owner explicitly accepts the documented residual risk.
 - External provider workflows are either proven through the real user path or recorded as release blockers.
 - GitHub issues/PRs and Kanban tasks reflect the actual state.
 
@@ -125,6 +139,7 @@ Do not mark project work ready until:
 
 - Do not create fake phased work when one product-level Codex task is enough.
 - Do not let Tester debug or fix code.
+- Do not let Security Tester apply fixes, write to the app repo, expose sensitive proof, or dynamically test an unspecified/unauthorized target.
 - Do not accept seeded OTPs, console logs, or database lookups as proof of a real customer login path.
 - Do not put secrets into Kanban, prompts, GitHub, or docs.
 - Do not unblock auth/access failures without verifying the same failing command or a direct equivalent.

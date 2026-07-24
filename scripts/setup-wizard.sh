@@ -538,8 +538,8 @@ if [[ "${SKIP_INSTALL}" -eq 0 ]]; then
   "${ROOT_DIR}/install.sh" "${install_args[@]}"
 fi
 
-set_default_from_profiles OPENROUTER_API_KEY OPENROUTER_API_KEY project-manager frontend-designer developer tester
-set_default_from_profiles GITHUB_TOKEN GITHUB_TOKEN project-manager developer tester
+set_default_from_profiles OPENROUTER_API_KEY OPENROUTER_API_KEY project-manager frontend-designer developer tester security-tester
+set_default_from_profiles GITHUB_TOKEN GITHUB_TOKEN project-manager developer tester security-tester
 set_default_from_profiles TELEGRAM_BOT_TOKEN TELEGRAM_BOT_TOKEN project-manager
 set_default_from_profiles TELEGRAM_ALLOWED_USERS TELEGRAM_ALLOWED_USERS project-manager
 set_default_from_profiles SIGNAL_HTTP_URL SIGNAL_HTTP_URL project-manager
@@ -547,8 +547,8 @@ set_default_from_profiles SIGNAL_ACCOUNT SIGNAL_ACCOUNT project-manager
 set_default_from_profiles SIGNAL_ALLOWED_USERS SIGNAL_ALLOWED_USERS project-manager
 set_default_from_profiles CODEX_HOME CODEX_HOME developer
 set_default_from_profiles OPENAI_API_KEY OPENAI_API_KEY developer
-set_default_from_profiles HERMES_LOG_LLM_OUTPUTS HERMES_LOG_LLM_OUTPUTS project-manager frontend-designer developer tester
-set_default_from_profiles HERMES_LLM_OUTPUT_LOG_MAX_CHARS HERMES_LLM_OUTPUT_LOG_MAX_CHARS project-manager frontend-designer developer tester
+set_default_from_profiles HERMES_LOG_LLM_OUTPUTS HERMES_LOG_LLM_OUTPUTS project-manager frontend-designer developer tester security-tester
+set_default_from_profiles HERMES_LLM_OUTPUT_LOG_MAX_CHARS HERMES_LLM_OUTPUT_LOG_MAX_CHARS project-manager frontend-designer developer tester security-tester
 HERMES_LOG_LLM_OUTPUTS="${HERMES_LOG_LLM_OUTPUTS:-0}"
 HERMES_LLM_OUTPUT_LOG_MAX_CHARS="${HERMES_LLM_OUTPUT_LOG_MAX_CHARS:-20000}"
 export HERMES_LOG_LLM_OUTPUTS HERMES_LLM_OUTPUT_LOG_MAX_CHARS
@@ -579,6 +579,9 @@ write_profile_env "${HOME}/.hermes/profiles/developer/.env" \
   OPENROUTER_API_KEY GITHUB_TOKEN CODEX_HOME OPENAI_API_KEY \
   HERMES_LOG_LLM_OUTPUTS HERMES_LLM_OUTPUT_LOG_MAX_CHARS
 write_profile_env "${HOME}/.hermes/profiles/tester/.env" \
+  OPENROUTER_API_KEY GITHUB_TOKEN \
+  HERMES_LOG_LLM_OUTPUTS HERMES_LLM_OUTPUT_LOG_MAX_CHARS
+write_profile_env "${HOME}/.hermes/profiles/security-tester/.env" \
   OPENROUTER_API_KEY GITHUB_TOKEN \
   HERMES_LOG_LLM_OUTPUTS HERMES_LLM_OUTPUT_LOG_MAX_CHARS
 

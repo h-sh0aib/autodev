@@ -1,11 +1,12 @@
 # Hermes Autonomous Development Team
 
-Reusable Hermes profile package for a four-agent autonomous software team:
+Reusable Hermes profile package for a five-agent autonomous software team:
 
 - `project-manager`: owns planning, Kanban/GitHub coordination, monitoring, escalation, and status.
 - `frontend-designer`: uses Lovable MCP sparingly to provide initial UI guidance for high-value screens.
 - `developer`: delegates all implementation, debugging, architecture, tests, and code-aware docs to Codex.
 - `tester`: validates user-facing behavior through Playwright and reports defects without editing the app.
+- `security-tester`: uses Kimi K3 for report-only, source-aware, risk-based application security assessment and remediation retesting.
 
 The package is designed to be cloned onto a new VPS, installed once, and then reused across many project repositories. Project state lives in Hermes Kanban boards, GitHub, and each project repo; runtime secrets and sessions stay under `~/.hermes` and are not part of this package.
 
@@ -29,6 +30,7 @@ The wizard handles:
 - GitHub token placement and optional `gh` CLI login.
 - Codex credential setup through `OPENAI_API_KEY`, `CODEX_HOME`, or existing `codex login`.
 - Frontend Designer setup with a restricted Lovable MCP tool list and Free-plan credit guardrails.
+- Security Tester setup on OpenRouter's `moonshotai/kimi-k3` with report-only authorization and evidence-handling guardrails.
 - Telegram/Signal owner-channel settings for the PM gateway.
 - Optional first-project board, watchdog, cron jobs, kickoff task, and gateway start.
 - Timestamped setup logs under `~/.hermes/autodev/logs/`.
@@ -72,6 +74,7 @@ The wizard or installer creates runtime env files at:
 ~/.hermes/profiles/frontend-designer/.env
 ~/.hermes/profiles/developer/.env
 ~/.hermes/profiles/tester/.env
+~/.hermes/profiles/security-tester/.env
 ```
 
 Minimum practical setup:
@@ -80,7 +83,20 @@ Minimum practical setup:
 - Lovable OAuth access if the optional Frontend Designer workflow will be used.
 - Codex auth for the server account, usually `codex login` or `OPENAI_API_KEY`.
 - `GITHUB_TOKEN` if the team should create issues, PRs, comments, or read CI.
+- The shared `OPENROUTER_API_KEY` must have access/credit for `moonshotai/kimi-k3` when Security Tester work is assigned.
 - `TELEGRAM_BOT_TOKEN` and `TELEGRAM_ALLOWED_USERS` only if you want the PM gateway exposed through Telegram.
+
+## Security Testing
+
+The `security-tester` profile uses Kimi K3 through OpenRouter. It is source-aware and can perform safe static, dependency, secret, configuration, infrastructure, API, and explicitly authorized dynamic testing. It never edits the application or applies fixes; confirmed findings go to `developer` for Codex remediation and return to `security-tester` for retesting.
+
+Its pinned baseline is OWASP ASVS 5.0.0, WSTG 4.2, OWASP Top 10:2025, API Security Top 10:2023, and NIST SSDF 1.1. Authenticated business products default to ASVS Level 2. Mobile and LLM/agent guidance is added only when relevant, with the exact stable version recorded in the report.
+
+Dynamic tests require an exact authorized target and scope. Production, third-party, destructive, brute-force, denial-of-service, and bulk-data techniques are out of scope by default. Security artifacts must stay outside the application repo and sensitive proof must be redacted/restricted.
+
+The package does not install global scanners. The profile can use existing tools such as Gitleaks, OSV-Scanner, Semgrep, Trivy/Checkov, and OWASP ZAP baseline mode; missing tools must be reported as coverage gaps.
+
+See [docs/security-testing.md](docs/security-testing.md) for the task scope template, workflow, standards, optional tools, evidence policy, and release gate.
 
 ## Bootstrap A Project
 
@@ -134,7 +150,7 @@ Each project gets its own:
 - Cron job names.
 - Kickoff task.
 
-The same `project-manager`, `frontend-designer`, `developer`, and `tester` profiles can work across multiple boards because Hermes cron and Kanban tasks carry the board/workdir context.
+The same `project-manager`, `frontend-designer`, `developer`, `tester`, and `security-tester` profiles can work across multiple boards because Hermes cron and Kanban tasks carry the board/workdir context.
 
 ## Gateway
 
@@ -150,7 +166,7 @@ Fallback for containers or VPS environments without a working user systemd bus:
 ./run-pm-gateway.sh
 ```
 
-Only expose the `project-manager` profile through Telegram or other owner-facing chat gateways. Frontend Designer, Developer, and Tester should be driven by Kanban and GitHub, not direct chat.
+Only expose the `project-manager` profile through Telegram or other owner-facing chat gateways. Frontend Designer, Developer, Tester, and Security Tester should be driven by Kanban and GitHub, not direct chat.
 
 ## Health Check
 
@@ -199,4 +215,4 @@ The package follows these Hermes-supported mechanisms:
 - Gateway: `project-manager gateway start` runs the gateway, scheduler, and dispatcher; `gateway run` is the foreground fallback.
 - Runtime separation: profile install/update should not commit `.env`, auth, sessions, logs, state databases, or project Kanban state into this package.
 
-See [docs/hermes-docs-cross-reference.md](docs/hermes-docs-cross-reference.md) for the exact documentation and CLI references used.
+See [docs/hermes-docs-cross-reference.md](docs/hermes-docs-cross-reference.md) for the exact Hermes documentation and CLI references used, and [docs/security-testing.md](docs/security-testing.md) for the Security Tester operating baseline.

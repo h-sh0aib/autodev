@@ -1,0 +1,2 @@
+# Shell entrypoints are deployed to Linux/VPS hosts and must remain executable.
+*.sh text eol=lf

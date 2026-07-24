@@ -44,7 +44,7 @@ else
   status=1
 fi
 
-for profile in project-manager frontend-designer developer tester; do
+for profile in project-manager frontend-designer developer tester security-tester; do
   if [[ -d "${HOME}/.hermes/profiles/${profile}" ]]; then
     ok "profile installed: ${profile}"
   else
@@ -53,7 +53,7 @@ for profile in project-manager frontend-designer developer tester; do
   fi
 done
 
-for profile in project-manager frontend-designer developer tester; do
+for profile in project-manager frontend-designer developer tester security-tester; do
   env_file="${HOME}/.hermes/profiles/${profile}/.env"
   if [[ -f "${env_file}" ]]; then
     ok "env file exists: ${env_file}"
@@ -61,6 +61,14 @@ for profile in project-manager frontend-designer developer tester; do
     warn "env file missing: ${env_file}"
   fi
 done
+
+security_config="${HOME}/.hermes/profiles/security-tester/config.yaml"
+if [[ -f "${security_config}" ]] && grep -Fq 'default: "moonshotai/kimi-k3"' "${security_config}"; then
+  ok "security-tester model: moonshotai/kimi-k3"
+else
+  fail "security-tester model is missing or is not moonshotai/kimi-k3"
+  status=1
+fi
 
 if command -v codex >/dev/null 2>&1; then
   ok "codex: $(command -v codex)"

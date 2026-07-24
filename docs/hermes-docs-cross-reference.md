@@ -27,6 +27,7 @@ Package decisions:
 - Include `SOUL.md`, `config.yaml`, `distribution.yaml`, `.env.EXAMPLE`, and `skills/`.
 - Keep Developer's `codex-network-exec` in the source package and copy it explicitly from `install.sh`; Hermes reserves profile-level `bin/` as runtime-owned and does not copy it from distributions.
 - Configure Frontend Designer's Lovable integration as a remote OAuth MCP server with a restricted tool allowlist.
+- Configure Security Tester to use OpenRouter `moonshotai/kimi-k3`, package its security methodology skill, and keep runtime scanner artifacts outside the distribution.
 - Use `distribution_owned` so profile update/install has a clear set of package-owned files.
 - Keep runtime `.env`, auth, sessions, logs, caches, `state.db`, and project state out of Git.
 
@@ -37,6 +38,7 @@ hermes profile install ./project-manager --name project-manager --alias
 hermes profile install ./frontend-designer --name frontend-designer --alias
 hermes profile install ./developer --name developer --alias
 hermes profile install ./tester --name tester --alias
+hermes profile install ./security-tester --name security-tester --alias
 ```
 
 ## Kanban
@@ -53,7 +55,7 @@ Package decisions:
 - Use one Kanban board per project/workstream.
 - Set each board's default workdir to that project repo.
 - Create an idempotent kickoff task with `--idempotency-key`.
-- Assign PM/Frontend Designer/Developer/Tester tasks to the reusable profile names.
+- Assign PM/Frontend Designer/Developer/Tester/Security Tester tasks to the reusable profile names.
 - Let the Hermes gateway dispatcher run workers.
 
 Project bootstrap commands use this shape:
@@ -123,7 +125,7 @@ Referenced docs:
 Package decisions:
 
 - Expose only `project-manager` to owner-facing chat by default.
-- Keep Frontend Designer, Developer, and Tester behind Kanban/GitHub.
+- Keep Frontend Designer, Developer, Tester, and Security Tester behind Kanban/GitHub.
 - Use `gateway start` when the VPS supports user services.
 - Provide `run-pm-gateway.sh` as a foreground fallback.
 - Rely on the PM gateway to run scheduler and Kanban dispatcher behavior.
@@ -137,3 +139,7 @@ The package intentionally does not ship trial project progress, old Kanban data,
 ```
 
 That creates runtime state for the project while keeping the package itself generic.
+
+## Security Testing
+
+See [security-testing.md](security-testing.md) for the Security Tester model, pinned standards, authorized-scope requirements, report-only boundaries, optional tools, workflow, evidence handling, and release recommendation rules.

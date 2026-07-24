@@ -36,6 +36,11 @@ Commit:
 - `tester/distribution.yaml`
 - `tester/.env.EXAMPLE`
 - `tester/skills/`
+- `security-tester/SOUL.md`
+- `security-tester/config.yaml`
+- `security-tester/distribution.yaml`
+- `security-tester/.env.EXAMPLE`
+- `security-tester/skills/`
 
 Do not commit:
 
@@ -55,6 +60,7 @@ Hermes installs and runs profiles from:
 ~/.hermes/profiles/frontend-designer
 ~/.hermes/profiles/developer
 ~/.hermes/profiles/tester
+~/.hermes/profiles/security-tester
 ```
 
 These directories contain package-owned files plus mutable runtime state. Treat them as installed output, not the long-term source of truth.
@@ -78,6 +84,7 @@ hermes profile install ./project-manager --name project-manager --alias --force 
 hermes profile install ./frontend-designer --name frontend-designer --alias --force -y
 hermes profile install ./developer --name developer --alias --force -y
 hermes profile install ./tester --name tester --alias --force -y
+hermes profile install ./security-tester --name security-tester --alias --force -y
 ```
 
 Hermes profile distributions support package-owned files such as `SOUL.md`, `config.yaml`, `distribution.yaml`, `.env.EXAMPLE`, and `skills/`. The team installer separately copies Developer's Codex launcher because Hermes treats profile-level `bin/` as runtime-owned. Runtime `.env` and auth/session data should remain outside Git.
@@ -99,7 +106,7 @@ git diff
 
 Never copy `.env`, `auth.json`, `state.db`, `sessions`, `logs`, `cache`, or `processes.json` into the package.
 
-Do not mirror the Frontend Designer's entire live `skills/` directory. Hermes may populate it with the auto-bundled catalog; keep only the curated team-owned skills needed by the distribution.
+Do not mirror a live profile's entire `skills/` directory. Hermes may populate it with the auto-bundled catalog; keep only curated team-owned skills. In particular, do not copy Security Tester scanner caches, vulnerability databases, generated evidence, or temporary tooling into the source package.
 
 ## New VPS Workflow
 
@@ -156,7 +163,7 @@ Use `README.md` for install instructions, `docs/hermes-docs-cross-reference.md` 
 
 ## Selling To Non-Technical Clients
 
-Use `wizard.sh` as the client-facing entrypoint. It configures all profile env files from one prompt flow, optionally sets Git identity, writes GitHub/Codex/Telegram/Signal values to the right profiles, bootstraps the first project, creates watchdog/PM sweep cron jobs, and attempts to start the PM gateway.
+Use `wizard.sh` as the client-facing entrypoint. It installs all five profiles, configures their env files from one prompt flow, optionally sets Git identity, writes GitHub/Codex/Telegram/Signal values to the right profiles, bootstraps the first project, creates watchdog/PM sweep cron jobs, and attempts to start the PM gateway. Security Tester uses the shared OpenRouter key with its profile-pinned Kimi K3 model.
 
 Each wizard run writes a support log under `~/.hermes/autodev/logs/` with `0600` permissions. If a client setup fails, ask for the latest `setup-wizard-*.log` file.
 

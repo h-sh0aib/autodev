@@ -28,8 +28,9 @@ The package should remain project-neutral. Do not add client names, trial projec
 - `run-pm-gateway.sh`: foreground gateway fallback for hosts where `gateway start` cannot use user systemd.
 - `setup.example.env`: config-file template for non-interactive/client installs.
 - `templates/`: PM sweep and kickoff task prompt templates.
-- `project-manager/`, `frontend-designer/`, `developer/`, `tester/`: Hermes profile distributions.
+- `project-manager/`, `frontend-designer/`, `developer/`, `tester/`, `security-tester/`: Hermes profile distributions.
 - `docs/hermes-docs-cross-reference.md`: why the package uses Hermes profiles, Kanban, cron, and gateway this way.
+- `docs/security-testing.md`: Security Tester standards, authorization scope, workflow, optional tooling, evidence handling, and release gate.
 
 ## Source vs Runtime
 
@@ -46,6 +47,7 @@ Runtime state:
 ~/.hermes/profiles/frontend-designer
 ~/.hermes/profiles/developer
 ~/.hermes/profiles/tester
+~/.hermes/profiles/security-tester
 ~/.hermes/autodev/projects/
 ~/.hermes/autodev/logs/
 ~/.hermes/scripts/
@@ -105,6 +107,7 @@ The wizard gathers shared values once and writes the right subset into:
 ~/.hermes/profiles/frontend-designer/.env
 ~/.hermes/profiles/developer/.env
 ~/.hermes/profiles/tester/.env
+~/.hermes/profiles/security-tester/.env
 ```
 
 Current main env keys:
@@ -137,11 +140,14 @@ Each profile distribution should include:
 - `.env.EXAMPLE`
 - `skills/`
 
+Security Tester's `config.yaml` intentionally pins `moonshotai/kimi-k3` through OpenRouter. Its `security-testing` skill pins the reproducible OWASP/NIST baseline and report-only safety boundaries. Keep model changes explicit and update the profile version and user documentation when changing them.
+
 Developer also has a source `bin/codex-network-exec`, but Hermes reserves profile-level `bin/` as runtime-owned. `scripts/install-team.sh` copies that launcher explicitly after installing the profile.
 
 The `distribution.yaml` `distribution_owned` list controls package-owned files. Runtime secrets and sessions should remain untouched by profile updates.
 
 The live Frontend Designer may contain Hermes's full auto-bundled skill catalog. Do not copy that catalog wholesale into this repo; its source distribution intentionally keeps only the Kanban worker and native MCP guidance it needs.
+Apply the same curation principle to Security Tester: retain its team-owned security methodology and do not mirror runtime caches, downloaded scanners, scan databases, or generated evidence into this package.
 
 Refresh installed profiles from the package:
 
@@ -189,13 +195,14 @@ For production client installs, consider adding a system service wrapper later s
 
 The wizard can collect and place credentials, but clients still need to create or provide:
 
-- OpenRouter/OpenAI API key.
+- OpenRouter/OpenAI API key; the OpenRouter account must have access/credit for `moonshotai/kimi-k3` when security assessments are used.
 - GitHub token.
 - Telegram bot token and allowed user IDs.
 - SSH key authorization on GitHub/GitLab if using private SSH repos.
 - Billing/account setup for providers.
 - Lovable OAuth access if the Frontend Designer workflow will be used.
 - Browser-based `codex login` if not using `OPENAI_API_KEY`.
+- Any optional security scanners desired on that VPS. The package deliberately does not install global scanner binaries.
 
 For non-technical clients, prefer `OPENAI_API_KEY` for Codex and HTTPS Git remotes with `GITHUB_TOKEN` unless SSH has been preconfigured.
 
@@ -207,6 +214,7 @@ After changing profiles, skills, docs, scripts, or wizard behavior:
 cd /root/hermes-autonomous-dev-team
 bash -n install.sh wizard.sh run-pm-gateway.sh scripts/*.sh
 python3 -c "import yaml, pathlib; [yaml.safe_load(p.read_text()) for p in list(pathlib.Path('.').glob('*/config.yaml'))+list(pathlib.Path('.').glob('*/distribution.yaml'))]; print('yaml ok')"
+python3 -c "import yaml; assert yaml.safe_load(open('security-tester/config.yaml'))['model']['default'] == 'moonshotai/kimi-k3'; print('security model ok')"
 rg -n "${CLIENT_SECRET_SCAN_PATTERN:?set this to known client names, paths, and contact markers}" . -g '!*.git/**'
 git status --short
 git diff
@@ -238,6 +246,7 @@ Before handing off a build:
 ```bash
 bash -n install.sh wizard.sh run-pm-gateway.sh scripts/*.sh
 python3 -c "import yaml, pathlib; [yaml.safe_load(p.read_text()) for p in list(pathlib.Path('.').glob('*/config.yaml'))+list(pathlib.Path('.').glob('*/distribution.yaml'))]; print('yaml ok')"
+python3 -c "import yaml; assert yaml.safe_load(open('security-tester/config.yaml'))['model']['default'] == 'moonshotai/kimi-k3'; print('security model ok')"
 ./wizard.sh --help
 ./install.sh --help
 ./scripts/setup-project.sh --help
@@ -260,6 +269,7 @@ Do not run a live project bootstrap test against a client project unless you int
 - Frontend Designer is optional per task, uses Lovable only for high-value UI guidance, and must stay within its explicit credit budget.
 - Developer must route implementation through Codex.
 - Tester is report-only and validates through Playwright/browser behavior.
+- Security Tester runs on OpenRouter `moonshotai/kimi-k3`, is source-aware but report-only, requires exact authorization for dynamic targets, and gates confirmed critical/high findings through Developer remediation and independent retesting.
 - Watchdog cron uses `--no-agent`; PM sweep cron uses script output plus an agent prompt.
 - Runtime project setup is separate from package installation so multiple projects can share the same team.
 
@@ -270,6 +280,7 @@ Do not run a live project bootstrap test against a client project unless you int
 - Hard-coding `/root`, a phone number, repo path, board slug, or client name into profile instructions.
 - Editing installed profiles under `~/.hermes` and forgetting to copy package-owned changes back into this repo.
 - Copying auto-bundled runtime skills into a source distribution instead of retaining its curated skill set.
+- Giving Security Tester a production URL without exact written scope, rate limits, test identities/data, exclusions, window, and stop conditions.
 - Assuming `gateway start` works on every VPS; keep `run-pm-gateway.sh` documented.
 - Committing `client.env` or real `.env` files.
 - Treating old runtime logs/sessions on a trial VPS as package content.
