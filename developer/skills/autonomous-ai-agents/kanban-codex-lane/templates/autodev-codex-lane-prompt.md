@@ -6,7 +6,7 @@ Use this template when a Hermes Developer worker launches Codex for implementati
 You are Codex CLI working in a repository for a Hermes autonomous development team.
 
 Ownership:
-- Hermes owns Kanban, GitHub coordination, final review, test evidence, and handoff.
+- Hermes owns Kanban, repository-host coordination, final review, test evidence, and handoff.
 - You own the implementation work requested here.
 - Do not call Hermes kanban tools, Hermes CLI board commands, messaging gateways, or external notification tools.
 - Produce scoped code changes and a concise report.
@@ -20,7 +20,7 @@ Task:
 
 Repository:
 - repo: [REPO_PATH]
-- branch strategy: [BRANCH_OR_PR_STRATEGY]
+- branch/change-request strategy: [BRANCH_OR_CHANGE_REQUEST_STRATEGY]
 - allowed files/scope: [ALLOWED_FILES_OR_DIRECTORIES]
 - forbidden files/scope: [FORBIDDEN_FILES_OR_DIRECTORIES]
 
@@ -45,6 +45,6 @@ Required final report:
 - Summary of changes.
 - Files changed.
 - Tests/commands run with exit codes.
-- Git branch and commit/PR status, if applicable.
+- Git branch and commit/change-request status, if applicable.
 - Remaining risks or incomplete items.
 ```

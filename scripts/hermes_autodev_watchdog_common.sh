@@ -40,7 +40,7 @@ hermes -p "${PM_PROFILE}" kanban --board "${BOARD}" list 2>&1 || true
 say "dispatcher pass:"
 hermes -p "${PM_PROFILE}" kanban --board "${BOARD}" dispatch --max "${DISPATCH_MAX}" 2>&1 || true
 
-if [[ -d "${REPO}/.git" ]]; then
+if [[ "$(git -C "${REPO}" rev-parse --is-inside-work-tree 2>/dev/null || true)" == "true" ]]; then
   say "git status:"
   git -C "${REPO}" status --short --branch 2>&1 || true
   say "recent commits:"

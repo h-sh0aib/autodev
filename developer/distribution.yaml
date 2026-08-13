@@ -1,7 +1,7 @@
 name: developer
-version: 1.3.0
+version: 1.5.0
 description: "Reusable autonomous development agent that delegates architecture, coding, debugging, validation, and docs to Codex."
-hermes_requires: ">=0.12.0"
+hermes_requires: ">=2026.8.3"
 author: "Local autonomous development team"
 license: "Private"
 env_requires:
@@ -9,10 +9,22 @@ env_requires:
     description: "OpenRouter API key for the default Hermes model provider. Optional if you reconfigure the profile to another provider."
     required: false
     default: ""
+  - name: ANTHROPIC_API_KEY
+    description: "Optional Anthropic API key. Leave blank when the profile uses supported Claude subscription OAuth."
+    required: false
+    default: ""
   - name: GITHUB_TOKEN
     description: "GitHub token for issues, branches, PRs, CI, and review comments if GitHub MCP or CLI auth is used."
     required: false
     default: ""
+  - name: GITLAB_TOKEN
+    description: "GitLab token for issues, branches, merge requests, CI, and review comments when GitLab integration is used."
+    required: false
+    default: ""
+  - name: GITLAB_HOST
+    description: "GitLab base URL for GitLab.com, Dedicated, or Self-Managed."
+    required: false
+    default: "https://gitlab.com"
   - name: CODEX_HOME
     description: "Optional Codex config/auth directory for codex-network-exec. Leave blank to use the server account's ~/.codex."
     required: false

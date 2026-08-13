@@ -4,14 +4,14 @@ This file is for the next developer maintaining or extending the Hermes autonomo
 
 ## Goal
 
-This repo packages a reusable Hermes autonomous software development team that can be installed on a VPS and reused across many project repos.
+This repo packages a reusable Hermes autonomous software development team for local Linux, WSL2, and remote Linux/SSH hosts. One installation can be reused across many project repos.
 
 The intended client-facing install flow is:
 
 ```bash
-git clone git@github.com:<org>/<repo>.git hermes-autonomous-dev-team
+git clone <package-repository-url> hermes-autonomous-dev-team
 cd hermes-autonomous-dev-team
-./wizard.sh
+bash ./wizard.sh
 ```
 
 The package should remain project-neutral. Do not add client names, trial project state, real credentials, hard-coded owner contact details, or app-specific assumptions.
@@ -24,13 +24,19 @@ The package should remain project-neutral. Do not add client names, trial projec
 - `scripts/install-team.sh`: installs/updates Hermes profiles and the common watchdog helper.
 - `scripts/setup-project.sh`: per-project bootstrap; creates board, project watchdog wrapper, cron jobs, kickoff task.
 - `scripts/hermes_autodev_watchdog_common.sh`: shared watchdog script copied into `~/.hermes/scripts/`.
-- `scripts/doctor.sh`: runtime health check.
+- `autodev.sh` / installed `hermes-autodev`: unified setup, project, GUI, gateway, doctor, update, and uninstall command router.
+- `dashboard.sh` / `scripts/dashboard.sh`: loopback-only local/SSH GUI manager.
+- `scripts/gateway.sh`: native-service gateway manager with guarded fallback.
+- `update.sh`, `uninstall.sh`, and `scripts/backup-runtime.sh`: guarded lifecycle and recovery commands.
+- `scripts/doctor.sh`: host/profile/repository/service/GUI health check.
 - `run-pm-gateway.sh`: foreground gateway fallback for hosts where `gateway start` cannot use user systemd.
 - `setup.example.env`: config-file template for non-interactive/client installs.
 - `templates/`: PM sweep and kickoff task prompt templates.
 - `project-manager/`, `frontend-designer/`, `developer/`, `tester/`, `security-tester/`: Hermes profile distributions.
 - `docs/hermes-docs-cross-reference.md`: why the package uses Hermes profiles, Kanban, cron, and gateway this way.
+- `docs/setup-and-lifecycle-audit.md`: audit findings, supported-host matrix, and remaining boundaries.
 - `docs/security-testing.md`: Security Tester standards, authorization scope, workflow, optional tooling, evidence handling, and release gate.
+- `tests/smoke-lifecycle.sh`: isolated install/rerun/GitLab/bootstrap/uninstall regression test.
 
 ## Source vs Runtime
 
@@ -65,29 +71,30 @@ setup.local.env
 
 ## Wizard Behavior
 
-`./wizard.sh` wraps `scripts/setup-wizard.sh`.
+`bash ./wizard.sh` wraps `scripts/setup-wizard.sh` without depending on archive
+executable bits.
 
 Interactive mode:
 
 ```bash
-./wizard.sh
+bash ./wizard.sh
 ```
 
 Non-interactive mode:
 
 ```bash
 cp setup.example.env client.env
-./wizard.sh --config client.env --non-interactive
+bash ./wizard.sh --config client.env --non-interactive
 ```
 
 Useful flags:
 
 ```bash
-./wizard.sh --skip-install
-./wizard.sh --skip-project
-./wizard.sh --no-force
-./wizard.sh --log-file /path/to/setup.log
-./wizard.sh --no-log
+hermes-autodev setup --skip-install
+hermes-autodev setup --skip-project
+hermes-autodev setup --no-force
+hermes-autodev setup --log-file /path/to/setup.log
+hermes-autodev setup --no-log
 ```
 
 The wizard writes logs by default:
@@ -112,8 +119,10 @@ The wizard gathers shared values once and writes the right subset into:
 
 Current main env keys:
 
-- `OPENROUTER_API_KEY`: Hermes model provider key.
-- `GITHUB_TOKEN`: GitHub issues/PRs/CI integration.
+- `OPENROUTER_API_KEY`: OpenRouter-backed Hermes models.
+- `ANTHROPIC_API_KEY`: optional API-billed Anthropic provider; blank when using Anthropic OAuth.
+- `GITHUB_TOKEN`: GitHub issues/pull requests/CI integration.
+- `GITLAB_TOKEN`, `GITLAB_HOST`: GitLab issues/merge requests/pipelines, including self-managed GitLab.
 - `OPENAI_API_KEY`: Codex on headless VPSes.
 - `CODEX_HOME`: optional Codex auth/config override; blank means `~/.codex`.
 - `TELEGRAM_BOT_TOKEN`: PM gateway Telegram bot token.
@@ -140,7 +149,9 @@ Each profile distribution should include:
 - `.env.EXAMPLE`
 - `skills/`
 
-Security Tester's `config.yaml` intentionally pins `moonshotai/kimi-k3` through OpenRouter. Its `security-testing` skill pins the reproducible OWASP/NIST baseline and report-only safety boundaries. Keep model changes explicit and update the profile version and user documentation when changing them.
+The source distributions retain their OpenRouter defaults, including `moonshotai/kimi-k3` for Security Tester. The wizard rewrites installed model blocks when the operator selects OpenRouter, `openai-codex`, or Anthropic and lets Security Tester use a separate model ID. Its `security-testing` skill pins the reproducible OWASP/NIST baseline and report-only safety boundaries. Keep source-default changes explicit and update profile versions and user documentation when changing them.
+
+Subscription credentials are per-profile Hermes auth state, not env-file values. `scripts/setup-wizard.sh` runs `hermes -p <profile> auth add openai-codex` or `hermes -p <profile> auth add anthropic --type oauth` for all five profiles when requested. The Developer's Codex CLI login remains a separate authentication concern.
 
 Developer also has a source `bin/codex-network-exec`, but Hermes reserves profile-level `bin/` as runtime-owned. `scripts/install-team.sh` copies that launcher explicitly after installing the profile.
 
@@ -152,13 +163,13 @@ Apply the same curation principle to Security Tester: retain its team-owned secu
 Refresh installed profiles from the package:
 
 ```bash
-./install.sh -y --force
+bash ./install.sh -y
 ```
 
 Client-friendly refresh:
 
 ```bash
-./wizard.sh --skip-project
+hermes-autodev setup --skip-project
 ```
 
 ## Project Bootstrap Flow
@@ -167,9 +178,12 @@ Per-project setup is in `scripts/setup-project.sh`.
 
 It creates or updates:
 
+- First-class Hermes Project with the repository as primary folder and the
+  matching Kanban board bound for GUI/Desktop session grouping.
 - Hermes Kanban board.
 - Board default workdir.
 - `~/.hermes/autodev/projects/<slug>.env`.
+- Detected/selected SCM provider and origin URL in that project env file.
 - `~/.hermes/scripts/autodev_watchdog_<slug>.sh`.
 - No-agent watchdog cron job.
 - Agent PM sweep cron job.
@@ -177,26 +191,25 @@ It creates or updates:
 
 The wizard calls `setup-project.sh` when project bootstrap is enabled.
 
-Cron/watchdog jobs do not run unless the Project Manager gateway is running. `setup-project.sh --start-gateway` tries:
+Cron/watchdog jobs do not run unless the Project Manager gateway is running. Use the portable manager:
 
 ```bash
-hermes -p project-manager gateway start
+hermes-autodev gateway start
+hermes-autodev gateway status
 ```
 
-If that fails on VPS/container hosts without user systemd, tell clients to run:
-
-```bash
-./run-pm-gateway.sh
-```
-
-For production client installs, consider adding a system service wrapper later so the fallback gateway starts on boot.
+It tries Hermes' managed service first and then a guarded detached fallback.
+The fallback survives an ordinary SSH connection loss, but logind policy may
+still end it and it does not restart after reboot; use a host/container
+supervisor if a systemd user service is unavailable and persistence is required.
 
 ## External Things The Wizard Cannot Fully Automate
 
 The wizard can collect and place credentials, but clients still need to create or provide:
 
-- OpenRouter/OpenAI API key; the OpenRouter account must have access/credit for `moonshotai/kimi-k3` when security assessments are used.
-- GitHub token.
+- The selected model-provider account, subscription, or API billing. Browser/device OAuth still needs an interactive operator.
+- GitHub and/or GitLab token with the project permissions the team needs.
+- `gh` for the complete GitHub workflow and `glab` for the complete GitLab workflow.
 - Telegram bot token and allowed user IDs.
 - SSH key authorization on GitHub/GitLab if using private SSH repos.
 - Billing/account setup for providers.
@@ -204,7 +217,7 @@ The wizard can collect and place credentials, but clients still need to create o
 - Browser-based `codex login` if not using `OPENAI_API_KEY`.
 - Any optional security scanners desired on that VPS. The package deliberately does not install global scanner binaries.
 
-For non-technical clients, prefer `OPENAI_API_KEY` for Codex and HTTPS Git remotes with `GITHUB_TOKEN` unless SSH has been preconfigured.
+For non-technical clients, prefer an existing `codex login` or `OPENAI_API_KEY` for the Developer lane and HTTPS Git remotes with the appropriate GitHub/GitLab token unless SSH has been preconfigured.
 
 ## Updating The Sold Package
 
@@ -214,7 +227,7 @@ After changing profiles, skills, docs, scripts, or wizard behavior:
 cd /root/hermes-autonomous-dev-team
 bash -n install.sh wizard.sh run-pm-gateway.sh scripts/*.sh
 python3 -c "import yaml, pathlib; [yaml.safe_load(p.read_text()) for p in list(pathlib.Path('.').glob('*/config.yaml'))+list(pathlib.Path('.').glob('*/distribution.yaml'))]; print('yaml ok')"
-python3 -c "import yaml; assert yaml.safe_load(open('security-tester/config.yaml'))['model']['default'] == 'moonshotai/kimi-k3'; print('security model ok')"
+python3 -c "import yaml, pathlib; [yaml.safe_load(p.read_text())['model'] for p in pathlib.Path('.').glob('*/config.yaml')]; print('model blocks ok')"
 rg -n "${CLIENT_SECRET_SCAN_PATTERN:?set this to known client names, paths, and contact markers}" . -g '!*.git/**'
 git status --short
 git diff
@@ -223,12 +236,10 @@ git commit -m "update autonomous dev team package"
 git push
 ```
 
-On a client VPS:
+On an installed host:
 
 ```bash
-cd hermes-autonomous-dev-team
-git pull
-./wizard.sh --skip-project
+hermes-autodev update
 ```
 
 If project cron templates changed and existing projects should receive the new prompt/script names, rerun:
@@ -244,19 +255,22 @@ If project cron templates changed and existing projects should receive the new p
 Before handing off a build:
 
 ```bash
-bash -n install.sh wizard.sh run-pm-gateway.sh scripts/*.sh
+bash -n autodev.sh install.sh wizard.sh dashboard.sh update.sh uninstall.sh run-pm-gateway.sh scripts/*.sh scripts/lib/*.sh tests/*.sh
 python3 -c "import yaml, pathlib; [yaml.safe_load(p.read_text()) for p in list(pathlib.Path('.').glob('*/config.yaml'))+list(pathlib.Path('.').glob('*/distribution.yaml'))]; print('yaml ok')"
-python3 -c "import yaml; assert yaml.safe_load(open('security-tester/config.yaml'))['model']['default'] == 'moonshotai/kimi-k3'; print('security model ok')"
-./wizard.sh --help
-./install.sh --help
+python3 -c "import yaml, pathlib; [yaml.safe_load(p.read_text())['model'] for p in pathlib.Path('.').glob('*/config.yaml')]; print('model blocks ok')"
+hermes-autodev setup --help
+hermes-autodev install --help
 ./scripts/setup-project.sh --help
-./scripts/doctor.sh
+./tests/smoke-lifecycle.sh
+hermes-autodev doctor
+hermes-autodev update --check
+hermes-autodev uninstall --dry-run
 ```
 
 Safe non-interactive wizard smoke test:
 
 ```bash
-./wizard.sh --config setup.example.env --non-interactive --skip-install --skip-project
+bash ./wizard.sh --config setup.example.env --non-interactive --skip-install --skip-project
 ```
 
 Do not run a live project bootstrap test against a client project unless you intend to create or update Hermes board/cron runtime state.
@@ -269,7 +283,8 @@ Do not run a live project bootstrap test against a client project unless you int
 - Frontend Designer is optional per task, uses Lovable only for high-value UI guidance, and must stay within its explicit credit budget.
 - Developer must route implementation through Codex.
 - Tester is report-only and validates through Playwright/browser behavior.
-- Security Tester runs on OpenRouter `moonshotai/kimi-k3`, is source-aware but report-only, requires exact authorization for dynamic targets, and gates confirmed critical/high findings through Developer remediation and independent retesting.
+- Security Tester uses the setup-selected provider/model, is source-aware but report-only, requires exact authorization for dynamic targets, and gates confirmed critical/high findings through Developer remediation and independent retesting.
+- Repository-host behavior is selected from each project's origin: `gh`/pull requests on GitHub, `glab`/merge requests on GitLab, and local Git plus Kanban for generic hosts.
 - Watchdog cron uses `--no-agent`; PM sweep cron uses script output plus an agent prompt.
 - Runtime project setup is separate from package installation so multiple projects can share the same team.
 
@@ -281,11 +296,12 @@ Do not run a live project bootstrap test against a client project unless you int
 - Editing installed profiles under `~/.hermes` and forgetting to copy package-owned changes back into this repo.
 - Copying auto-bundled runtime skills into a source distribution instead of retaining its curated skill set.
 - Giving Security Tester a production URL without exact written scope, rate limits, test identities/data, exclusions, window, and stop conditions.
-- Assuming `gateway start` works on every VPS; keep `run-pm-gateway.sh` documented.
+- Exposing the dashboard on `0.0.0.0` instead of preserving loopback + SSH/VPN access.
+- Assuming PID fallbacks survive reboot; only a real host/container supervisor provides that guarantee.
 - Committing `client.env` or real `.env` files.
 - Treating old runtime logs/sessions on a trial VPS as package content.
 
-## GitHub Remote Status
+## Package Repository Remote Status
 
 This repo tracks an `origin/main` remote. Verify the current destination before publishing:
 

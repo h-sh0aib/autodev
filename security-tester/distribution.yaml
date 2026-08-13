@@ -1,18 +1,30 @@
 name: security-tester
-version: 1.0.0
-description: "Reusable report-only application security tester using Kimi K3, risk-based OWASP verification, safe tooling, and actionable remediation evidence."
-hermes_requires: ">=0.12.0"
+version: 1.2.0
+description: "Reusable report-only application security tester using a wizard-selected Hermes model, risk-based OWASP verification, safe tooling, and actionable remediation evidence."
+hermes_requires: ">=2026.8.3"
 author: "Local autonomous development team"
 license: "Private"
 env_requires:
   - name: OPENROUTER_API_KEY
-    description: "OpenRouter API key used to run the configured moonshotai/kimi-k3 model."
+    description: "Optional OpenRouter API key when this profile is configured for OpenRouter."
+    required: false
+    default: ""
+  - name: ANTHROPIC_API_KEY
+    description: "Optional Anthropic API key. Leave blank when the profile uses supported Claude subscription OAuth."
     required: false
     default: ""
   - name: GITHUB_TOKEN
     description: "GitHub token for reading PRs and filing restricted security findings or remediation issues when GitHub integration is used."
     required: false
     default: ""
+  - name: GITLAB_TOKEN
+    description: "GitLab token for reading merge requests and filing restricted findings or remediation issues."
+    required: false
+    default: ""
+  - name: GITLAB_HOST
+    description: "GitLab base URL for GitLab.com, Dedicated, or Self-Managed."
+    required: false
+    default: "https://gitlab.com"
 distribution_owned:
   - SOUL.md
   - config.yaml

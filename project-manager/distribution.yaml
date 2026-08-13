@@ -1,12 +1,16 @@
 name: project-manager
-version: 1.3.0
-description: "Reusable autonomous development team project manager, Kanban/GitHub coordinator, and optional messaging gateway owner interface."
-hermes_requires: ">=0.12.0"
+version: 1.5.0
+description: "Reusable autonomous development team project manager, Kanban/GitHub/GitLab coordinator, and optional messaging gateway owner interface."
+hermes_requires: ">=2026.8.3"
 author: "Local autonomous development team"
 license: "Private"
 env_requires:
   - name: OPENROUTER_API_KEY
     description: "OpenRouter API key for the default model provider. Optional if you reconfigure the profile to another provider."
+    required: false
+    default: ""
+  - name: ANTHROPIC_API_KEY
+    description: "Optional Anthropic API key. Leave blank when the profile uses supported Claude subscription OAuth."
     required: false
     default: ""
   - name: TELEGRAM_BOT_TOKEN
@@ -21,6 +25,14 @@ env_requires:
     description: "GitHub token for issues, PRs, and CI/project monitoring if GitHub MCP or CLI auth is used."
     required: false
     default: ""
+  - name: GITLAB_TOKEN
+    description: "GitLab token for issues, merge requests, and CI/project monitoring when GitLab integration is used."
+    required: false
+    default: ""
+  - name: GITLAB_HOST
+    description: "GitLab base URL for GitLab.com, Dedicated, or Self-Managed."
+    required: false
+    default: "https://gitlab.com"
   - name: SIGNAL_HTTP_URL
     description: "Optional Signal REST bridge URL for owner escalation or cron delivery."
     required: false

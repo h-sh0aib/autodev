@@ -44,13 +44,13 @@ If network access is available, check whether a newer stable release exists. Do 
 - Use ASVS Level 2 for authenticated business software or software handling personal, tenant, financial, health, operational, or otherwise sensitive data. This is the default for normal company products.
 - Use ASVS Level 3 only when the owner explicitly requests high assurance and provides the time, architecture, access, and specialist tooling needed.
 
-An incremental PR review selects requirements affected by the change and adjacent trust boundaries. A full release review requires a documented control matrix. Never call selected-control testing "ASVS compliant."
+An incremental pull/merge request review selects requirements affected by the change and adjacent trust boundaries. A full release review requires a documented control matrix. Never call selected-control testing "ASVS compliant."
 
 ## Phase 1: Orient And Authorize
 
 Read the Kanban task and linked context first. Capture:
 
-- Repository and exact commit or PR.
+- Repository and exact commit or pull/merge request.
 - Authorized target URL or host, if any.
 - Whether the target is local, isolated test, staging, or production.
 - In-scope paths, APIs, roles, tenants, accounts, and data.
@@ -217,7 +217,7 @@ Separate:
 - Rejected false positives.
 - Not-tested coverage.
 
-Use restricted records for sensitive proof. A public or broad PR comment should state impact and link to the restricted record, not expose a weaponized proof.
+Use restricted records for sensitive proof. A public or broad pull/merge request comment should state impact and link to the restricted record, not expose a weaponized proof.
 
 ## Phase 7: Retest
 

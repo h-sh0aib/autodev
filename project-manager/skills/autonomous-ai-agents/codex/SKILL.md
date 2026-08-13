@@ -1,7 +1,7 @@
 ---
 name: codex
-description: "Delegate coding to OpenAI Codex CLI (features, PRs)."
-version: 1.0.0
+description: "Delegate coding and pull/merge request review to OpenAI Codex CLI."
+version: 1.1.0
 author: Hermes Agent
 license: MIT
 platforms: [linux, macos, windows]
@@ -19,7 +19,7 @@ Delegate coding tasks to [Codex](https://github.com/openai/codex) via the Hermes
 
 - Building features
 - Refactoring
-- PR reviews
+- Pull/merge request reviews
 - Batch issue fixing
 
 Requires the codex CLI and a git repository.
@@ -50,14 +50,14 @@ codex-network-exec /path/to/repo /path/to/prompt.md
 The wrapper runs Codex with:
 
 ```
-codex exec --sandbox danger-full-access --ask-for-approval never -C /path/to/repo - < /path/to/prompt.md
+codex --ask-for-approval never exec --sandbox danger-full-access -C /path/to/repo - < /path/to/prompt.md
 ```
 
 Use this wrapper for feature work, debugging, tests, builds, Prisma, Playwright,
-package installs, GitHub operations, local servers, or anything that could need
+package installs, repository-host operations, local servers, or anything that could need
 network access. This avoids the restricted sandbox issue where Codex launches
 with `network: restricted` / `--unshare-net` and cannot reach npm, databases,
-browsers, GitHub, or local services.
+browsers, GitHub/GitLab, or local services.
 
 ## One-Shot Tasks
 
@@ -93,16 +93,22 @@ process(action="kill", session_id="<id>")
 | Flag | Effect |
 |------|--------|
 | `exec "prompt"` | One-shot execution, exits when done |
-| `--sandbox danger-full-access --ask-for-approval never` | Network-enabled, non-interactive execution. Use through `codex-network-exec` for this team. |
+| `codex --ask-for-approval never exec --sandbox danger-full-access` | Current network-enabled, non-interactive invocation. Use through `codex-network-exec` for this team. The global approval flag must precede `exec`. |
 | `--sandbox workspace-write` | Workspace sandbox that may still restrict network. Use only for small read-only/no-network tasks. |
 | `--dangerously-bypass-approvals-and-sandbox` | No sandbox at all. Avoid unless the Project Manager explicitly approves a one-off recovery. |
 
-## PR Reviews
+## Pull And Merge Request Reviews
 
-Clone to a temp directory for safe review:
+Detect the repository host, then clone to a temp directory for safe review. GitHub example:
 
 ```
 terminal(command="REVIEW=$(mktemp -d) && git clone https://github.com/user/repo.git $REVIEW && cd $REVIEW && gh pr checkout 42 && codex review --base origin/main", pty=true)
+```
+
+GitLab example:
+
+```
+terminal(command="REVIEW=$(mktemp -d) && git clone https://gitlab.com/group/repo.git $REVIEW && cd $REVIEW && glab mr checkout 42 && codex review --base origin/main", pty=true)
 ```
 
 ## Parallel Issue Fixing with Worktrees
@@ -119,15 +125,16 @@ terminal(command="codex --yolo exec 'Fix issue #99: <description>. Commit when d
 # Monitor
 process(action="list")
 
-# After completion, push and create PRs
+# After completion, push and create the host-appropriate pull/merge request
 terminal(command="cd /tmp/issue-78 && git push -u origin fix/issue-78")
 terminal(command="gh pr create --repo user/repo --head fix/issue-78 --title 'fix: ...' --body '...'")
+# On GitLab, use: glab mr create --source-branch fix/issue-78 --title 'fix: ...' --description '...' --yes
 
 # Cleanup
 terminal(command="git worktree remove /tmp/issue-78", workdir="~/project")
 ```
 
-## Batch PR Reviews
+## Batch GitHub Pull Request Reviews
 
 ```
 # Fetch all PR refs
@@ -140,6 +147,8 @@ terminal(command="codex exec 'Review PR #87. git diff origin/main...origin/pr/87
 # Post results
 terminal(command="gh pr comment 86 --body '<review>'", workdir="~/project")
 ```
+
+These refspecs and `gh` commands are GitHub-specific. For GitLab, use `glab mr list`, `glab mr checkout`, and `glab mr note create` rather than GitHub pull refs.
 
 ## Rules
 

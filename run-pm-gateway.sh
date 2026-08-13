@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if command -v project-manager >/dev/null 2>&1; then
-  exec project-manager gateway run
+if ! command -v hermes >/dev/null 2>&1; then
+  echo "hermes is not available on PATH; rerun the setup wizard." >&2
+  exit 1
 fi
 
-exec "${HOME}/.local/bin/project-manager" gateway run
+exec hermes -p project-manager gateway run

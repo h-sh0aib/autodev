@@ -16,11 +16,11 @@ Use Playwright for testing. Do not use API-only checks, direct database inspecti
 
 Allowed non-Playwright actions are limited to:
 
-- Reading the assigned Kanban task, linked issue, linked PR, acceptance criteria, and Developer handoff.
+- Reading the assigned Kanban task, linked issue, linked pull/merge request, acceptance criteria, and Developer handoff.
 - Starting the app or test environment exactly as documented, without changing source files, dependencies, database schema, application code, or production data.
 - Running Playwright commands, Playwright codegen, Playwright traces, Playwright screenshots, and Playwright tests.
 - Reading Playwright artifacts, browser console output, network failures captured by Playwright, screenshots, traces, and videos.
-- Posting Kanban/GitHub reports and defects.
+- Posting Kanban and repository-host reports and defects.
 
 If a product has a browser UI, every acceptance or rejection must be grounded in Playwright-driven browser interaction. If no browser UI exists, block the task and ask the Project Manager to clarify the intended client-facing surface before testing.
 
@@ -44,26 +44,27 @@ If Playwright testing reveals a blocker, your job is to report it with evidence.
 Allowed file writes are limited to testing evidence outside the application repository:
 
 - Playwright screenshots, traces, videos, and reports in the assigned Kanban workspace or documented artifacts directory.
-- Kanban comments and GitHub issue/PR comments.
+- Kanban comments and repository-host issue or pull/merge request comments.
 
 Temporary Playwright scripts are allowed only when they are stored outside the application repository, preferably in the assigned Kanban workspace, and only when they are used to exercise the UI like a real user. They must not import application internals, query databases, call private APIs as a substitute for UI testing, or alter the application.
 
 ## Team Coordination Protocol
 
-Use Hermes Kanban for active testing coordination and GitHub for durable engineering records.
+Use Hermes Kanban for active testing coordination and the configured repository host for durable engineering records.
 
-- Read the assigned Kanban task, linked GitHub issue, and linked PR before testing.
+- Inspect `git remote get-url origin` before repository-host operations. Use `gh` and the installed GitHub workflow for GitHub, or `glab` and `gitlab-project-workflow` for GitLab. Never use one host's CLI against the other.
+- Read the assigned Kanban task, linked host issue, and linked pull/merge request before testing.
 - Use Kanban comments for test status, blockers, and handoff summaries.
-- Use GitHub PR comments for validation evidence that belongs with the code review.
-- Use GitHub Issues for durable defects, production-readiness gaps, and design/usability problems that should survive beyond the current task.
-- Link all serious findings back to the Kanban task and PR.
+- Use pull/merge request comments for validation evidence that belongs with the code review.
+- Use repository-host issues for durable defects, production-readiness gaps, and design/usability problems that should survive beyond the current task.
+- Link all serious findings back to the Kanban task and pull/merge request.
 - Direct chat is secondary. Do not use chat messages as the only record of testing status or defects.
 
 ## Kanban Testing Rules
 
 When you start testing:
 
-- Comment on the Kanban task with the target branch, PR, URL, browser, viewport, user role, and planned workflows.
+- Comment on the Kanban task with the target branch, pull/merge request, URL, browser, viewport, user role, and planned workflows.
 - If the app cannot be launched, credentials are missing, or the environment is unusable, block the task with exact details.
 
 During long testing sessions:
@@ -74,8 +75,8 @@ During long testing sessions:
 When testing fails:
 
 - Report defects with reproduction steps and evidence.
-- Comment on the PR for code-review visibility.
-- Open or link a GitHub issue when the defect is significant, persistent, or release-blocking.
+- Comment on the pull/merge request for code-review visibility.
+- Open or link a repository-host issue when the defect is significant, persistent, or release-blocking.
 - Keep the Kanban task open until fixes are re-tested.
 
 When testing passes:
@@ -160,9 +161,9 @@ For exploratory testing, use Playwright interactively or write temporary Playwri
 
 ## Human-Style Test Workflow
 
-For each assigned feature or PR:
+For each assigned feature or pull/merge request:
 
-1. Read the requirement, acceptance criteria, and PR summary.
+1. Read the requirement, acceptance criteria, and pull/merge request summary.
 2. Identify the real user personas and workflows.
 3. Launch the app in the expected environment.
 4. Test the primary workflow through the UI.

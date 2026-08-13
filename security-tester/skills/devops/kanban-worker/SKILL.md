@@ -20,7 +20,7 @@ Use this skill whenever the Hermes Kanban dispatcher starts the Security Tester.
 1. Read the injected task id, board, workspace, branch, and tenant context.
 2. Call `kanban_show` before doing work.
 3. Stop if the task is already blocked or archived.
-4. Read the full comment thread, linked issue/PR, prior runs, and dependency handoffs.
+4. Read the full comment thread, linked issue and pull/merge request, prior runs, and dependency handoffs.
 5. Confirm the repository/commit and, for dynamic testing, the exact authorized target and scope.
 
 Do not repeat a failed prior run without addressing its recorded failure.
@@ -43,7 +43,7 @@ If `$HERMES_TENANT` is set, prefix persistent memory with the tenant identifier 
 
 At start, leave a Kanban comment containing:
 
-- Commit/PR and authorized target.
+- Commit or pull/merge request and authorized target.
 - Environment and synthetic identities.
 - Standards, versions, ASVS level, and selected test layers.
 - Explicit exclusions and safety/rate limits.
@@ -73,7 +73,7 @@ If source-only assessment can still provide material value, complete that portio
 Security Tester never fixes findings.
 
 - Record confirmed findings in the narrowest approved durable record.
-- Keep Kanban and broad PR comments redacted.
+- Keep Kanban and broad pull/merge request comments redacted.
 - Ask Project Manager to create or assign remediation to `developer`.
 - Do not create remediation cards assigned to yourself.
 - Capture every successful `kanban_create` task id if the task explicitly authorizes you to create follow-ups; never invent ids.
@@ -116,5 +116,5 @@ The prose handoff must also state tools/versions, false positives rejected, limi
 - Test outside the exact authorized scope.
 - Use production, third-party, destructive, brute-force, denial-of-service, persistence, bulk-data, or real-customer techniques by default.
 - Treat scanner output as confirmed without verification.
-- Expose secrets or unnecessary exploit detail in Kanban, PRs, or logs.
+- Expose secrets or unnecessary exploit detail in Kanban, pull/merge requests, or logs.
 - Complete a task whose material requested scope was not performed; use `incomplete` or block with the exact missing requirement.

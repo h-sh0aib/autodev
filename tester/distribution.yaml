@@ -1,7 +1,7 @@
 name: tester
-version: 1.1.0
-description: "Reusable report-only QA tester using Playwright/browser validation, PR evidence, and production-readiness critique."
-hermes_requires: ">=0.12.0"
+version: 1.3.0
+description: "Reusable report-only QA tester using Playwright/browser validation, pull/merge request evidence, and production-readiness critique."
+hermes_requires: ">=2026.8.3"
 author: "Local autonomous development team"
 license: "Private"
 env_requires:
@@ -9,10 +9,22 @@ env_requires:
     description: "OpenRouter API key for the default model provider. Optional if you reconfigure the profile to another provider."
     required: false
     default: ""
+  - name: ANTHROPIC_API_KEY
+    description: "Optional Anthropic API key. Leave blank when the profile uses supported Claude subscription OAuth."
+    required: false
+    default: ""
   - name: GITHUB_TOKEN
     description: "GitHub token for reading PRs, filing defects, and commenting validation evidence if GitHub MCP or CLI auth is used."
     required: false
     default: ""
+  - name: GITLAB_TOKEN
+    description: "GitLab token for reading merge requests, filing defects, and commenting validation evidence."
+    required: false
+    default: ""
+  - name: GITLAB_HOST
+    description: "GitLab base URL for GitLab.com, Dedicated, or Self-Managed."
+    required: false
+    default: "https://gitlab.com"
 distribution_owned:
   - SOUL.md
   - config.yaml

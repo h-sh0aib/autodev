@@ -16,7 +16,7 @@ metadata:
 
 This skill defines the Hermes plus Codex operating pattern for the autonomous development team.
 
-Hermes owns the Kanban task lifecycle, task comments, heartbeats, blocker handling, GitHub coordination, final review, test evidence, and completion handoff. Codex owns code-aware work: architecture planning, source edits, debugging, refactoring, tests, build fixes, and code behavior documentation.
+Hermes owns the Kanban task lifecycle, task comments, heartbeats, blocker handling, repository-host coordination, final review, test evidence, and completion handoff. Codex owns code-aware work: architecture planning, source edits, debugging, refactoring, tests, build fixes, and code behavior documentation.
 
 Codex output is not a task-completion signal by itself. Treat Codex results as an implementation artifact that still needs review, verification, and a Kanban handoff from the Hermes worker.
 
@@ -28,7 +28,7 @@ Do not use Codex for:
 
 - Pure PM coordination.
 - Pure Tester report writing.
-- Reading Kanban/GitHub context.
+- Reading Kanban/repository-host context.
 - Posting comments, heartbeats, or handoffs.
 - Human escalation.
 
@@ -55,7 +55,7 @@ This wrapper is the default because implementation often needs package registrie
 Use `templates/autodev-codex-lane-prompt.md` as the base structure. Every Codex prompt must include:
 
 - Kanban task id, title, body, and acceptance criteria.
-- Repository path and intended branch or PR strategy.
+- Repository path and intended branch and pull/merge request strategy.
 - Product goal and observable user-facing behavior.
 - Relevant project docs, existing decisions, and known constraints.
 - Explicit instruction that Hermes owns Kanban and messaging.
@@ -83,7 +83,7 @@ Before accepting Codex output:
 - Review changed files and diffs for scope, secrets, unrelated churn, and placeholder behavior.
 - Run the repository's relevant validation commands.
 - Confirm the work matches the Kanban acceptance criteria.
-- Open or update the GitHub PR when code changed.
+- Open or update the host-appropriate pull/merge request when code changed.
 - Hand off to Tester for user-facing behavior.
 
 Distinguish Codex-run validation from Hermes/Developer-run validation in handoffs.
@@ -102,7 +102,7 @@ When completing or blocking a task that used Codex, include:
     "tests_run": [
       {"command": "npm test", "exit_code": 0, "owner": "codex-or-hermes"}
     ],
-    "pr": "https://github.com/org/repo/pull/123",
+    "change_request": "https://host.example/org/repo/change/123",
     "risks": [],
     "blocker": ""
   }

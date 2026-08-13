@@ -1,6 +1,6 @@
 # Security Testing Profile
 
-The `security-tester` profile is the team's report-only application security specialist. It runs on OpenRouter with:
+The `security-tester` profile is the team's report-only application security specialist. Its source-package default is:
 
 ```yaml
 model:
@@ -8,9 +8,11 @@ model:
   default: moonshotai/kimi-k3
 ```
 
+The setup wizard can replace that provider/model with the selected OpenRouter, `openai-codex`, or Anthropic configuration and can choose a Security Tester model separately from the rest of the team.
+
 It can read application source and configuration, run safe security tooling, and perform explicitly authorized dynamic tests. It cannot edit the application, apply fixes, test arbitrary targets, or treat raw scanner output as a confirmed vulnerability.
 
-No model fallback is configured: repeated OpenRouter authentication, billing, rate, or provider-capacity errors should be recorded as an operations blocker rather than silently moving the assessment to a different model.
+Do not switch providers or models silently during an assessment. Repeated authentication, billing, rate, or provider-capacity errors should record the configured provider/model and become an operations blocker rather than silently moving the assessment to a different model.
 
 ## Standards Baseline
 
@@ -25,7 +27,7 @@ The profile pins stable standards for reproducible assessments:
 
 ASVS Level 1 is the minimum web baseline. Level 2 is the default for authenticated company software and systems handling personal, tenant, financial, health, or other sensitive data. Level 3 requires an explicit high-assurance engagement.
 
-A PR review normally assesses selected controls affected by the change. A claim of ASVS compliance requires every in-scope requirement at the stated level to be evaluated in a complete coverage matrix.
+A pull/merge request review normally assesses selected controls affected by the change. A claim of ASVS compliance requires every in-scope requirement at the stated level to be evaluated in a complete coverage matrix.
 
 ## Team Workflow
 
@@ -78,7 +80,7 @@ Tool absence is a coverage gap, not permission to modify the application or glob
 
 ## Evidence And Release Gate
 
-Security evidence stays outside the application repository and must redact secrets, session material, personal records, and unnecessary exploit detail. Broad PR/Kanban comments should link to restricted evidence rather than reproduce it.
+Security evidence stays outside the application repository and must redact secrets, session material, personal records, and unnecessary exploit detail. Broad pull/merge request and Kanban comments should link to restricted evidence rather than reproduce it.
 
 The final recommendation is one of:
 

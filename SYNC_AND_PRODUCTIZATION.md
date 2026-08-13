@@ -45,7 +45,7 @@ Commit:
 Do not commit:
 
 - Real `.env` files.
-- API keys, OAuth files, Telegram tokens, Signal credentials, or GitHub tokens.
+- API keys, OAuth files, Telegram tokens, Signal credentials, or GitHub/GitLab tokens.
 - `~/.hermes/profiles/*/state.db`.
 - Sessions, logs, caches, process files, model catalogs, or auth files.
 - Project repos or project-specific progress data.
@@ -68,24 +68,24 @@ These directories contain package-owned files plus mutable runtime state. Treat 
 Refresh runtime profiles from this package:
 
 ```bash
-./wizard.sh --skip-project
+hermes-autodev setup --skip-project
 ```
 
 Or use the lower-level installer:
 
 ```bash
-./install.sh -y --force
+hermes-autodev install -y
 ```
 
 Or install a single profile with Hermes directly:
 
 ```bash
-hermes profile install ./project-manager --name project-manager --alias --force -y
-hermes profile install ./frontend-designer --name frontend-designer --alias --force -y
-hermes profile install ./developer --name developer --alias --force -y
-hermes profile install ./tester --name tester --alias --force -y
-hermes profile install ./security-tester --name security-tester --alias --force -y
+hermes profile install ./project-manager --name project-manager --alias -y
 ```
+
+For a profile already installed from this distribution, use
+`hermes profile update project-manager -y`. Reserve `--force` or
+`--force-config` for an intentional repair/reset after taking a backup.
 
 Hermes profile distributions support package-owned files such as `SOUL.md`, `config.yaml`, `distribution.yaml`, `.env.EXAMPLE`, and `skills/`. The team installer separately copies Developer's Codex launcher because Hermes treats profile-level `bin/` as runtime-owned. Runtime `.env` and auth/session data should remain outside Git.
 
@@ -111,9 +111,9 @@ Do not mirror a live profile's entire `skills/` directory. Hermes may populate i
 ## New VPS Workflow
 
 ```bash
-git clone git@github.com:<org>/<repo>.git hermes-autonomous-dev-team
+git clone <package-repository-url> hermes-autonomous-dev-team
 cd hermes-autonomous-dev-team
-./wizard.sh
+bash ./wizard.sh
 ```
 
 For non-interactive/client handoff installs:
@@ -121,13 +121,13 @@ For non-interactive/client handoff installs:
 ```bash
 cp setup.example.env client.env
 nano client.env
-./wizard.sh --config client.env --non-interactive
+bash ./wizard.sh --config client.env --non-interactive
 ```
 
 Then bootstrap additional projects as needed:
 
 ```bash
-./wizard.sh --skip-install
+hermes-autodev setup --skip-install
 ```
 
 Run the setup script again for more projects. Do not duplicate the profile distributions for each project.
@@ -163,21 +163,20 @@ Use `README.md` for install instructions, `docs/hermes-docs-cross-reference.md` 
 
 ## Selling To Non-Technical Clients
 
-Use `wizard.sh` as the client-facing entrypoint. It installs all five profiles, configures their env files from one prompt flow, optionally sets Git identity, writes GitHub/Codex/Telegram/Signal values to the right profiles, bootstraps the first project, creates watchdog/PM sweep cron jobs, and attempts to start the PM gateway. Security Tester uses the shared OpenRouter key with its profile-pinned Kimi K3 model.
+Use `wizard.sh` as the client-facing entrypoint. It safely installs or updates all five profiles, selects their Hermes provider/models, can authenticate ChatGPT/Codex or supported Claude subscription access per profile, configures env files from one prompt flow, optionally sets Git identity, writes GitHub/GitLab/Codex/Telegram/Signal values to the right profiles, bootstraps the first project, configures the local/SSH browser GUI, creates watchdog/PM sweep cron jobs, and can start the PM gateway. Security Tester can use a separately selected model while retaining the package's report-only safeguards.
 
 Each wizard run writes a support log under `~/.hermes/autodev/logs/` with `0600` permissions. If a client setup fails, ask for the latest `setup-wizard-*.log` file.
 
 For white-glove installs, pre-fill `client.env` from `setup.example.env` and run:
 
 ```bash
-./wizard.sh --config client.env --non-interactive
+bash ./wizard.sh --config client.env --non-interactive
 ```
 
 For package updates after profile, skill, markdown, or script changes:
 
 ```bash
-git pull
-./wizard.sh --skip-project
+hermes-autodev update
 ```
 
 If env examples gain new keys, the wizard is the place to add prompts and profile env writes so clients never have to edit profile folders manually.
