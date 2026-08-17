@@ -137,7 +137,9 @@ Package decisions:
 - Create a no-agent watchdog job for cheap status checks and dispatch passes.
 - Create an agent PM sweep job that receives watchdog script output in its prompt.
 - Use `--workdir` so project context files are injected.
-- Use `--profile project-manager` so the scheduler runs under the PM profile.
+- Invoke cron commands through `hermes -p project-manager` so jobs are created
+  in the Project Manager profile that owns the scheduler. Current Hermes cron
+  subcommands no longer accept the former job-level `--profile` option.
 - Resolve existing jobs by name and update/resume them to avoid duplicate cron jobs.
 
 The two cron job patterns:
@@ -148,8 +150,7 @@ hermes -p project-manager cron create "every 5m" \
   --deliver local \
   --script autodev_watchdog_<slug>.sh \
   --no-agent \
-  --workdir /absolute/path/to/repo \
-  --profile project-manager
+  --workdir /absolute/path/to/repo
 
 hermes -p project-manager cron create "every 5m" "<PM sweep prompt>" \
   --name "<Project> autonomous PM sweep" \
@@ -157,8 +158,7 @@ hermes -p project-manager cron create "every 5m" "<PM sweep prompt>" \
   --skill codex \
   --skill kanban-codex-lane \
   --script autodev_watchdog_<slug>.sh \
-  --workdir /absolute/path/to/repo \
-  --profile project-manager
+  --workdir /absolute/path/to/repo
 ```
 
 ## Gateway And Messaging

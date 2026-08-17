@@ -148,6 +148,15 @@ fi
 if [[ "${1:-}" == "-p" ]]; then
   profile="${2:-}"
   shift 2
+  if [[ "${1:-}" == "cron" ]]; then
+    for argument in "$@"; do
+      if [[ "${argument}" == "--profile" ]]; then
+        echo "hermes: error: unrecognized arguments: --profile" >&2
+        exit 2
+      fi
+    done
+    exit 0
+  fi
   if [[ "${1:-}" == "gateway" && "${2:-}" == "status" ]]; then
     echo "Gateway: stopped"
     exit 1
@@ -310,7 +319,7 @@ mkdir -p "${TEST_ROOT}/work/project-linked/packages/app"
   bash "${ROOT_DIR}/scripts/setup-project.sh" \
     --project-path project-linked/packages/app \
     --project-slug smoke-project \
-    --no-cron \
+    --cron \
     --no-start-gateway
 )
 grep -q 'project create' "${FAKE_LOG}"
@@ -318,6 +327,11 @@ for profile in project-manager frontend-designer developer tester security-teste
   [[ -f "${HERMES_HOME}/autodev/fake-project-${profile}-smoke-project" ]]
 done
 [[ "$(grep -c -- ' project create ' "${FAKE_LOG}")" -eq 5 ]]
+[[ "$(grep -c -- '^-p project-manager cron create ' "${FAKE_LOG}")" -eq 2 ]]
+if grep -Eq -- '^-p project-manager cron (create|edit).* --profile( |$)' "${FAKE_LOG}"; then
+  echo "Project setup passed the retired cron --profile option." >&2
+  exit 1
+fi
 bash -n "${HERMES_HOME}/scripts/autodev_watchdog_smoke-project.sh"
 
 bash "${ROOT_DIR}/scripts/setup-project.sh" \

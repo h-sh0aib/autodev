@@ -346,8 +346,7 @@ create_or_update_watchdog_job() {
       --deliver local \
       --script "${WATCHDOG_SCRIPT}" \
       --no-agent \
-      --workdir "${PROJECT_PATH}" \
-      --profile "${PM_PROFILE}"
+      --workdir "${PROJECT_PATH}"
     hermes -p "${PM_PROFILE}" cron resume "${job_id}" || true
   else
     hermes -p "${PM_PROFILE}" cron create "${WATCHDOG_INTERVAL}" \
@@ -355,8 +354,7 @@ create_or_update_watchdog_job() {
       --deliver local \
       --script "${WATCHDOG_SCRIPT}" \
       --no-agent \
-      --workdir "${PROJECT_PATH}" \
-      --profile "${PM_PROFILE}"
+      --workdir "${PROJECT_PATH}"
   fi
 }
 
@@ -373,8 +371,7 @@ create_or_update_pm_sweep_job() {
       --skill kanban-codex-lane \
       --script "${WATCHDOG_SCRIPT}" \
       --agent \
-      --workdir "${PROJECT_PATH}" \
-      --profile "${PM_PROFILE}"
+      --workdir "${PROJECT_PATH}"
     hermes -p "${PM_PROFILE}" cron resume "${job_id}" || true
   else
     hermes -p "${PM_PROFILE}" cron create "${PM_SWEEP_INTERVAL}" "${prompt}" \
@@ -383,8 +380,7 @@ create_or_update_pm_sweep_job() {
       --skill codex \
       --skill kanban-codex-lane \
       --script "${WATCHDOG_SCRIPT}" \
-      --workdir "${PROJECT_PATH}" \
-      --profile "${PM_PROFILE}"
+      --workdir "${PROJECT_PATH}"
   fi
 }
 
