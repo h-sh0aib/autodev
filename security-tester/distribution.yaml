@@ -1,7 +1,7 @@
 name: security-tester
 version: 1.2.0
 description: "Reusable report-only application security tester using a wizard-selected Hermes model, risk-based OWASP verification, safe tooling, and actionable remediation evidence."
-hermes_requires: ">=2026.8.3"
+hermes_requires: ">=0.20.0"
 author: "Local autonomous development team"
 license: "Private"
 env_requires:

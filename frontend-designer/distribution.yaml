@@ -1,7 +1,7 @@
 name: frontend-designer
 version: 1.2.0
 description: "Reusable autonomous development team frontend designer that uses Lovable MCP sparingly to generate initial UI design guidance for Developer implementation."
-hermes_requires: ">=2026.8.3"
+hermes_requires: ">=0.20.0"
 author: "Local autonomous development team"
 license: "Private"
 env_requires:

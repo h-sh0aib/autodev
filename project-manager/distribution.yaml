@@ -1,7 +1,7 @@
 name: project-manager
 version: 1.5.0
 description: "Reusable autonomous development team project manager, Kanban/GitHub/GitLab coordinator, and optional messaging gateway owner interface."
-hermes_requires: ">=2026.8.3"
+hermes_requires: ">=0.20.0"
 author: "Local autonomous development team"
 license: "Private"
 env_requires:

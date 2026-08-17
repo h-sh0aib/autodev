@@ -38,7 +38,7 @@ for path in files:
     with path.open(encoding="utf-8") as handle:
         yaml.safe_load(handle)
 
-required = ">=2026.8.3"
+required = ">=0.20.0"
 distributions = sorted(Path(".").glob("*/distribution.yaml"))
 for path in distributions:
     data = yaml.safe_load(path.read_text(encoding="utf-8"))

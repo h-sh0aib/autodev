@@ -37,7 +37,7 @@ printf '\n' >> "${FAKE_LOG}"
 
 if [[ "${1:-}" == "--version" ]]; then
   cat <<EOF
-Hermes Agent v2026.8.3 (smoke)
+Hermes Agent v0.20.2 (smoke)
 Install directory: ${FAKE_HERMES_INSTALL_DIR:-/tmp/fake-hermes}
 Python: 3
 EOF
@@ -128,7 +128,7 @@ port = int(sys.argv[3])
 class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         if self.path == "/api/status":
-            payload = json.dumps({"version": "2026.8.3-smoke"}).encode()
+            payload = json.dumps({"version": "0.20.2-smoke"}).encode()
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
             self.send_header("Content-Length", str(len(payload)))
@@ -268,7 +268,7 @@ env -u HERMES_HOME -u HERMES_AUTODEV_STATE_DIR \
   --mode ssh --port 19119 --no-persist --no-open >/dev/null
 env -u HERMES_HOME -u HERMES_AUTODEV_STATE_DIR \
   "${HOME}/.local/bin/hermes-autodev" dashboard status >/dev/null
-curl --fail --silent 'http://127.0.0.1:19119/api/status' | grep -q '2026.8.3-smoke'
+curl --fail --silent 'http://127.0.0.1:19119/api/status' | grep -q '0.20.2-smoke'
 env -u HERMES_HOME -u HERMES_AUTODEV_STATE_DIR \
   "${HOME}/.local/bin/hermes-autodev" dashboard stop >/dev/null
 if env -u HERMES_HOME -u HERMES_AUTODEV_STATE_DIR \

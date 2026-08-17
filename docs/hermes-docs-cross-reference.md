@@ -10,7 +10,7 @@ Hermes official quick install:
 curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
 ```
 
-The package downloads that script to a temporary file before executing it. It is used when Hermes is missing or when an unsupported Hermes release cannot update itself. The package requires [Hermes 2026.8.3](https://github.com/NousResearch/hermes-agent/releases/tag/v2026.8.3) or newer so the GUI relies on the current fail-closed dashboard authentication and unified machine-level lifecycle.
+The package downloads that script to a temporary file before executing it. It is used when Hermes is missing or when an unsupported Hermes release cannot update itself. The package requires Hermes Agent `0.20.0` or newer, first published as [release tag v2026.8.3](https://github.com/NousResearch/hermes-agent/releases/tag/v2026.8.3), so the GUI relies on the current fail-closed dashboard authentication and unified machine-level lifecycle. Hermes reports the package version (for example, `0.20.2`) from `hermes --version`; the calendar-based value is the Git release tag and must not be used for CLI version comparisons or `hermes_requires`.
 
 ## Profile Distributions
 

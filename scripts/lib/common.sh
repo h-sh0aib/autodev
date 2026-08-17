@@ -3,11 +3,13 @@
 # Shared helpers for Linux/WSL setup and lifecycle scripts. This file is
 # sourced; callers choose their own shell strictness.
 
-# Keep the package on the first stable Hermes release that includes the
-# current dashboard auth gate and unified machine-level dashboard lifecycle.
+# Keep the package on Hermes Agent 0.20.0, published as release tag v2026.8.3,
+# which is the first stable release that includes the current dashboard auth
+# gate and unified machine-level dashboard lifecycle. Hermes --version reports
+# the package version (0.20.x), not the calendar-based release tag (2026.8.3).
 # These constants are consumed by scripts that source this library.
 # shellcheck disable=SC2034
-AUTODEV_MIN_HERMES_VERSION="2026.8.3"
+AUTODEV_MIN_HERMES_VERSION="0.20.0"
 # shellcheck disable=SC2034
 AUTODEV_TEAM_PROFILES=(project-manager frontend-designer developer tester security-tester)
 

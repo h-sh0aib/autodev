@@ -1,7 +1,7 @@
 name: tester
 version: 1.3.0
 description: "Reusable report-only QA tester using Playwright/browser validation, pull/merge request evidence, and production-readiness critique."
-hermes_requires: ">=2026.8.3"
+hermes_requires: ">=0.20.0"
 author: "Local autonomous development team"
 license: "Private"
 env_requires:

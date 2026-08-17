@@ -42,9 +42,10 @@ other CLI behavior used by the package.
 
 Resolution:
 
-- Every distribution declares Hermes `>=2026.8.3`, the first stable release
-  this package accepts with the current fail-closed dashboard authentication
-  and unified machine-level dashboard lifecycle.
+- Every distribution declares Hermes `>=0.20.0`, first published as release
+  tag `v2026.8.3`. This is the first stable release this package accepts with
+  the current fail-closed dashboard authentication and unified machine-level
+  dashboard lifecycle.
 - The installer detects semantic versions and upgrades an unsupported release.
 - Operators can request an update every run or deliberately suppress an update.
 - Downloads use the current official Hermes installer endpoint and a temporary
