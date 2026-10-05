@@ -11,7 +11,7 @@
 # shellcheck disable=SC2034
 AUTODEV_MIN_HERMES_VERSION="0.20.0"
 # shellcheck disable=SC2034
-AUTODEV_TEAM_PROFILES=(project-manager frontend-designer developer tester security-tester)
+AUTODEV_TEAM_PROFILES=(project-manager frontend-designer developer tester security-tester support-agent support-manager)
 
 # A stable pointer outside HERMES_HOME lets lifecycle commands rediscover a
 # custom runtime directory in fresh shells. It is generated with shell-safe

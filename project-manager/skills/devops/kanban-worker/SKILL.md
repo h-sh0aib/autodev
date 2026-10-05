@@ -49,7 +49,9 @@ kanban_complete(
 
 **Coding task that needs human review (review-required):**
 
-For most code-changing tasks, the work isn't truly *done* until a human reviewer has eyes on it. Block instead of complete, with `reason` prefixed `review-required: ` so the dashboard surfaces the row as needing review. Drop the structured metadata (changed files, test counts, diff or pull/merge request URL) into a comment first, since `kanban_block` only carries the human-readable reason — comments are the durable annotation channel. Reviewer either approves and runs `hermes kanban unblock <id>` (which re-spawns you with the comment thread for any follow-ups) or asks for changes via another comment.
+Routine code changes receive independent specialist review and validation through the department, coordinated by the Project Manager. Do not insert a human approval dependency merely because code changed. Use the review lane or a linked specialist validation task and keep the evidence durable.
+
+When the owner or repository policy explicitly requires a human reviewer, block instead of complete, with `reason` prefixed `review-required: ` so the dashboard surfaces the decision. Drop structured metadata (changed files, test counts, diff or pull/merge request URL) into a comment first. The authorized reviewer approves or requests changes; the Project Manager resumes the task through the supported Kanban tools. Honor explicit release approvals and never bypass repository protection.
 
 ```python
 import json
@@ -68,7 +70,7 @@ kanban_block(
 )
 ```
 
-Use `kanban_complete` only when the task is genuinely terminal — e.g. a one-line typo fix, a docs change with no functional consequences, or a research task where the artifact IS the writeup itself.
+Use `kanban_complete` only when the assigned task contract is satisfied and its required evidence is recorded. An implementation task may finish before a separate validation task; that does not complete the project or a PM-owned support delivery card.
 
 **Research task:**
 ```python

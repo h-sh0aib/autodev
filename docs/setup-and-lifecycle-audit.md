@@ -1,5 +1,7 @@
 # Setup, GUI, and Lifecycle Audit
 
+Historical 1.5.0 audit. Version 1.6.0 adds two support profiles and a separate public HTTPS portal; see [production-portal.md](production-portal.md). Loopback restrictions below still apply to the raw Hermes administration dashboard.
+
 Audit target: autonomous development team package 1.5.0. The review covered the
 entrypoints, installer, wizard, project bootstrap, watchdog, gateway startup,
 diagnostics, documentation, and the supported Hermes lifecycle commands.

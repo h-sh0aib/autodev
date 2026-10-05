@@ -111,6 +111,10 @@ if [[ "${YES}" -ne 1 ]]; then
 fi
 
 dashboard_was_running=0
+portal_was_running=0
+if bash "${ROOT_DIR}/scripts/portal.sh" status >/dev/null 2>&1; then
+  portal_was_running=1
+fi
 if bash "${ROOT_DIR}/scripts/dashboard.sh" status >/dev/null 2>&1; then
   dashboard_was_running=1
 fi
@@ -136,6 +140,12 @@ fi
 
 if [[ "${dashboard_was_running}" -eq 1 ]]; then
   bash "${ROOT_DIR}/scripts/dashboard.sh" restart --no-open
+fi
+
+if [[ "${portal_was_running}" -eq 1 ]]; then
+  portal_python="$(autodev_state_dir)/portal-venv/bin/python"
+  "${portal_python}" -m pip install -r "${ROOT_DIR}/portal/requirements.txt"
+  bash "${ROOT_DIR}/scripts/portal.sh" restart
 fi
 
 bash "${ROOT_DIR}/scripts/doctor.sh"

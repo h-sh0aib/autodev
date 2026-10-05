@@ -1,5 +1,5 @@
 name: developer
-version: 1.5.0
+version: 1.6.0
 description: "Reusable autonomous development agent that delegates architecture, coding, debugging, validation, and docs to Codex."
 hermes_requires: ">=0.20.0"
 author: "Local autonomous development team"

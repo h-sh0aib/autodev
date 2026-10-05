@@ -9,7 +9,7 @@ cd hermes-autonomous-dev-team
 bash ./wizard.sh
 ```
 
-This installs or refreshes the `project-manager`, `frontend-designer`, `developer`, `tester`, and `security-tester` profiles, selects the Hermes provider/models, configures profile env files from one place, can set Git identity, can help with GitHub/GitLab/Codex credentials, and can bootstrap the first project.
+This installs or refreshes the seven development and support profiles, selects the Hermes provider/models, configures profile env files from one place, can set Git identity, can help with GitHub/GitLab/Codex credentials, and can bootstrap the first project.
 
 Every wizard run writes a setup transcript under:
 
@@ -50,6 +50,8 @@ The wizard writes the right subset into:
 ~/.hermes/profiles/developer/.env
 ~/.hermes/profiles/tester/.env
 ~/.hermes/profiles/security-tester/.env
+~/.hermes/profiles/support-agent/.env
+~/.hermes/profiles/support-manager/.env
 ```
 
 Only the Project Manager should receive owner-facing Telegram or Signal gateway credentials unless you intentionally design otherwise.
@@ -104,7 +106,17 @@ For additional projects after the first:
 hermes-autodev setup --skip-install
 ```
 
-## 5. Open The GUI
+## 5. Open The Website
+
+For a public Linux deployment:
+
+```bash
+hermes-autodev portal setup --domain team.example.com
+```
+
+Follow [the HTTPS and service setup](docs/production-portal.md). Open `/team`, sign in, publish the desired projects and give the project manager a brief. Customers use `/` for public status and support. Existing projects must be registered by rerunning their project bootstrap; this also refreshes recurring prompts.
+
+The advanced Hermes administration dashboard remains available privately:
 
 ```bash
 hermes-autodev dashboard open

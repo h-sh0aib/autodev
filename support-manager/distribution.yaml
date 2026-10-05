@@ -1,0 +1,21 @@
+name: support-manager
+version: 1.0.0
+description: "Support department lead: severity, escalation quality, follow-through and verified resolution."
+hermes_requires: ">=0.20.0"
+author: "Local autonomous development team"
+license: "Private"
+env_requires:
+  - name: OPENROUTER_API_KEY
+    description: "API key for the default provider; optional when another provider is configured."
+    required: false
+    default: ""
+  - name: ANTHROPIC_API_KEY
+    description: "Optional Anthropic API key; omit for subscription OAuth."
+    required: false
+    default: ""
+distribution_owned:
+  - SOUL.md
+  - config.yaml
+  - distribution.yaml
+  - .env.EXAMPLE
+  - skills/

@@ -23,6 +23,8 @@ Installs or safely refreshes these Hermes profiles:
   - developer
   - tester
   - security-tester
+  - support-agent
+  - support-manager
 
 Options:
   --install-hermes        Install Hermes if the hermes command is missing.

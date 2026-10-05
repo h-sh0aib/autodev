@@ -41,3 +41,7 @@ __pycache__/
 *.sqlite-*
 node_modules/
 .DS_Store
+
+# Python test artifacts
+.pytest_cache/
+.venv/

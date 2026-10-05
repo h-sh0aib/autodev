@@ -292,8 +292,9 @@ WATCHDOG_SCRIPT="autodev_watchdog_${PROJECT_SLUG}.sh"
 WATCHDOG_PATH="${HERMES_HOME_DIR}/scripts/${WATCHDOG_SCRIPT}"
 WATCHDOG_TEMP="$(mktemp)"
 {
-  printf '#!/usr/bin/env bash\nset -euo pipefail\n'
+  printf '#!/usr/bin/env bash\nset -euo pipefail\nset -a\n'
   printf 'source %q\n' "${PROJECT_CONFIG}"
+  printf 'set +a\n'
   printf 'exec %q\n' "${HERMES_HOME_DIR}/scripts/hermes_autodev_watchdog_common.sh"
 } > "${WATCHDOG_TEMP}"
 autodev_install_executable "${WATCHDOG_TEMP}" "${WATCHDOG_PATH}"
@@ -440,6 +441,10 @@ if [[ "${CREATE_CRON}" -eq 1 ]]; then
   echo "Cron jobs ensured for ${PROJECT_SLUG}."
 fi
 
+# Registration is local/stdlib-only and preserves the owner's publication choice.
+bash "${ROOT_DIR}/scripts/portal.sh" register \
+  --slug "${PROJECT_SLUG}" --name "${PROJECT_NAME}" --repo "${PROJECT_PATH}"
+
 if [[ "${START_GATEWAY}" -eq 1 ]]; then
   bash "${ROOT_DIR}/scripts/gateway.sh" start
 fi
@@ -449,7 +454,7 @@ cat <<EOF
 Project bootstrap complete.
 
 Board:       ${PROJECT_SLUG}
-GUI project: ${PROJECT_SLUG} (all five profiles)
+GUI project: ${PROJECT_SLUG} (all seven profiles)
 Project:     ${PROJECT_NAME}
 Repository:  ${PROJECT_PATH}
 Remote:      ${REMOTE_URL:-not configured}

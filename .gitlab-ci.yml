@@ -22,3 +22,12 @@ lifecycle:
   script:
     - bash tests/static-checks.sh
     - bash tests/smoke-lifecycle.sh
+
+portal:
+  stage: validate
+  image: python:3.12-slim
+  before_script:
+    - pip install -r portal/requirements-dev.txt
+    - python -m playwright install --with-deps chromium
+  script:
+    - AUTODEV_BROWSER_TESTS=1 python -m pytest -q tests/test_portal.py tests/test_portal_browser.py

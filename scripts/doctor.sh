@@ -234,6 +234,14 @@ else
   warn "dashboard not configured; run 'hermes-autodev dashboard open'"
 fi
 
+if [[ -f "$(autodev_state_dir)/portal.json" ]]; then
+  if bash "${ROOT_DIR}/scripts/portal.sh" status >/dev/null 2>&1; then
+    ok "public portal service is running"
+  else
+    warn "public portal is configured but stopped; use 'hermes-autodev portal start'"
+  fi
+fi
+
 if [[ -n "${PROJECT_SLUG}" ]]; then
   heading "Project ${PROJECT_SLUG}"
   config="$(autodev_state_dir)/projects/${PROJECT_SLUG}.env"

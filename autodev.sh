@@ -10,9 +10,11 @@ Usage:
 
 Commands:
   setup        Run the guided setup wizard (default).
-  install      Install or refresh the five Hermes profiles.
+  install      Install or refresh the seven Hermes profiles.
   project      Add or refresh a project workspace and Kanban board.
   dashboard    Start, stop, configure, or inspect the web GUI.
+  portal       Host the public support portal and private team workspace.
+  support      Inspect, reply to, and hand off support tickets.
   gateway      Start, stop, restart, or inspect the PM gateway.
   doctor       Check package, profile, project, gateway, and GUI health.
   update       Safely update Hermes, this package, and installed profiles.
@@ -46,6 +48,9 @@ case "${command_name}" in
     ;;
   dashboard|gui)
     exec bash "${ROOT_DIR}/dashboard.sh" "$@"
+    ;;
+  portal|support)
+    exec bash "${ROOT_DIR}/scripts/portal.sh" "$@"
     ;;
   gateway)
     exec bash "${ROOT_DIR}/scripts/gateway.sh" "$@"

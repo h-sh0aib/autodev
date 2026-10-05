@@ -210,6 +210,7 @@ load_config_file() {
       HERMES_AUTODEV_GENERATE_SSH_KEY|HERMES_AUTODEV_GUI_MODE|\
       HERMES_AUTODEV_GUI_PORT|HERMES_AUTODEV_GUI_PERSIST|\
       HERMES_AUTODEV_GUI_START|HERMES_AUTODEV_RUN_DOCTOR|\
+      HERMES_AUTODEV_SETUP_PORTAL|AUTODEV_PORTAL_DOMAIN|\
       AUTODEV_PYTHON|OPENROUTER_API_KEY|ANTHROPIC_API_KEY|\
       GITHUB_TOKEN|GITLAB_TOKEN|GITLAB_HOST|OPENAI_API_KEY|CODEX_HOME|\
       TELEGRAM_BOT_TOKEN|TELEGRAM_ALLOWED_USERS|SIGNAL_HTTP_URL|SIGNAL_ACCOUNT|\
@@ -1185,7 +1186,7 @@ validate_boolean_config \
   HERMES_AUTODEV_VERIFY_CODEX HERMES_AUTODEV_BOOTSTRAP_PROJECT \
   HERMES_AUTODEV_CREATE_CRON HERMES_AUTODEV_START_GATEWAY \
   HERMES_AUTODEV_GENERATE_SSH_KEY HERMES_AUTODEV_GUI_PERSIST \
-  HERMES_AUTODEV_GUI_START HERMES_AUTODEV_RUN_DOCTOR
+  HERMES_AUTODEV_GUI_START HERMES_AUTODEV_RUN_DOCTOR HERMES_AUTODEV_SETUP_PORTAL
 
 autodev_require_linux
 
@@ -1253,7 +1254,7 @@ export HERMES_LOG_LLM_OUTPUTS HERMES_LLM_OUTPUT_LOG_MAX_CHARS
 
 section "Hermes model provider"
 cat <<'EOF'
-Choose how the five Hermes orchestration profiles call their model:
+Choose how the seven Hermes orchestration profiles call their model:
   openrouter    API-key billing through OpenRouter.
   openai-codex  ChatGPT/Codex sign-in; availability and quota follow the account.
   anthropic     Anthropic API key, or Claude Max OAuth with extra-usage credits.
@@ -1382,6 +1383,12 @@ write_profile_env "$(autodev_profile_dir security-tester)/.env" \
   OPENROUTER_API_KEY ANTHROPIC_API_KEY GITHUB_TOKEN GITLAB_TOKEN GITLAB_HOST \
   HERMES_LOG_LLM_OUTPUTS HERMES_LLM_OUTPUT_LOG_MAX_CHARS
 
+for support_profile in support-agent support-manager; do
+  write_profile_env "$(autodev_profile_dir "${support_profile}")/.env" \
+    OPENROUTER_API_KEY ANTHROPIC_API_KEY \
+    HERMES_LOG_LLM_OUTPUTS HERMES_LLM_OUTPUT_LOG_MAX_CHARS
+done
+
 echo "Profile env files updated under ${HERMES_HOME_DIR}/profiles/*/.env"
 
 maybe_verify_codex
@@ -1396,6 +1403,15 @@ case "${HERMES_AUTODEV_SCM_PROVIDER}" in
 esac
 bootstrap_project
 configure_gui
+
+section "Public website"
+prompt_yes_no HERMES_AUTODEV_SETUP_PORTAL \
+  "Set up the public support website and private team workspace?" \
+  "${HERMES_AUTODEV_SETUP_PORTAL:-no}"
+if [[ "${HERMES_AUTODEV_SETUP_PORTAL}" == "1" ]]; then
+  prompt_text AUTODEV_PORTAL_DOMAIN "Website DNS name (for example team.example.com)" "${AUTODEV_PORTAL_DOMAIN:-}" 0 1
+  bash "${ROOT_DIR}/scripts/portal.sh" setup --domain "${AUTODEV_PORTAL_DOMAIN}"
+fi
 
 section "Health check"
 prompt_yes_no HERMES_AUTODEV_RUN_DOCTOR "Run setup doctor now?" "${HERMES_AUTODEV_RUN_DOCTOR:-yes}"
@@ -1413,7 +1429,10 @@ cat <<EOF
 
 Setup wizard complete.
 
-Open or inspect the GUI:
+Host the public support portal and private team workspace:
+  hermes-autodev portal setup --domain team.example.com
+
+Open or inspect the advanced private GUI:
   hermes-autodev dashboard open
   hermes-autodev dashboard status
 

@@ -47,7 +47,7 @@ if [[ "${backup_dir}" == "${hermes_home_dir}" ]] || autodev_path_is_within "${ba
 fi
 mkdir -p "${backup_dir}"
 chmod 0700 "$(autodev_external_state_dir)" "${backup_dir}" 2>/dev/null || true
-timestamp="$(date -u +%Y%m%dT%H%M%SZ)"
+timestamp="$(date -u +%Y%m%dT%H%M%SZ)-$$"
 
 if [[ -z "${OUTPUT}" ]]; then
   if command -v hermes >/dev/null 2>&1; then
@@ -64,6 +64,12 @@ fi
 OUTPUT="${output_abs}"
 mkdir -p "$(dirname "${OUTPUT}")"
 umask 077
+
+# Hermes quick backups need not include package databases. Keep a SQLite
+# online-backup snapshot beside every archive, including custom state roots.
+if [[ -f "$(autodev_state_dir)/portal.sqlite" ]]; then
+  bash "${SCRIPT_DIR}/portal.sh" backup "${OUTPUT}.portal.sqlite"
+fi
 
 if command -v hermes >/dev/null 2>&1; then
   if [[ "${MODE}" == "quick" ]]; then

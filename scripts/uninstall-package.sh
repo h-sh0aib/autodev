@@ -125,6 +125,7 @@ Profiles:
 Services:
   Project Manager gateway
   Hermes autonomous-dev dashboard service/background process
+  AutoDev public support portal user service (system-level Caddy remains operator-owned)
 Generated state:
   ${HERMES_HOME_DIR}/autodev
   ${HERMES_HOME_DIR}/scripts/hermes_autodev_watchdog_common.sh
@@ -172,12 +173,14 @@ if [[ "${BACKUP}" -eq 1 && -d "${HERMES_HOME_DIR}" ]]; then
   bash "${ROOT_DIR}/scripts/backup-runtime.sh" --full
 fi
 
+bash "${ROOT_DIR}/scripts/portal.sh" uninstall-service || autodev_die \
+  "the portal service could not be stopped; resolve it and retry."
 bash "${ROOT_DIR}/scripts/dashboard.sh" uninstall-service || autodev_die \
   "the dashboard could not be stopped safely; resolve the reported process/service issue and retry."
 bash "${ROOT_DIR}/scripts/gateway.sh" stop || autodev_die \
   "the Project Manager gateway could not be stopped safely; resolve it and retry."
 
-for profile in security-tester tester developer frontend-designer project-manager; do
+for profile in support-manager support-agent security-tester tester developer frontend-designer project-manager; do
   profile_dir="${HERMES_HOME_DIR}/profiles/${profile}"
   [[ -d "${profile_dir}" ]] || continue
   if command -v hermes >/dev/null 2>&1 && hermes profile delete "${profile}" --yes; then

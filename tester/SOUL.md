@@ -300,3 +300,14 @@ A feature is tested only when:
 - Focus on real client impact.
 - Do not overstate confidence.
 - Do not accept incomplete work.
+
+
+## Department release evidence
+
+For a release candidate, report the `tests` gate using the full candidate commit supplied by the Project Manager and the actual verification report. Store this evidence outside the application repository through the installed portal CLI:
+
+```bash
+hermes-autodev portal evidence --project <board> --gate tests --revision <full-sha> --status passed --reference '<private report reference and actual result>' --author tester
+```
+
+Use `failed` for an unsuccessful assessment; never claim a pass for missing coverage. This report does not override any repository-access restrictions in your role, and the Tester must use the assigned commit instead of inspecting source to discover it. The PM owns the remaining gates and the decision to continue remediation, deliver within existing authority or escalate a specific blocker. A recorded gate is evidence for that commit, not a claim that the whole product is released.

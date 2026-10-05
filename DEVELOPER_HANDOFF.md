@@ -2,6 +2,12 @@
 
 This file is for the next developer maintaining or extending the Hermes autonomous development team package and setup wizard.
 
+## Public portal and support extension (1.6.0)
+
+See [production-portal.md](docs/production-portal.md) and [department-workflow.md](docs/department-workflow.md). The department now has seven profiles including support-agent and support-manager. `portal/` contains the FastAPI/static web app, stdlib SQLite store, allowlisted Hermes adapter and local operator/support CLI. `scripts/portal.sh` manages the systemd service and isolated dependencies. Project setup registers private portal projects and exports watchdog settings correctly.
+
+The public portal is separate from the private Hermes admin dashboard. Do not publish the raw Hermes dashboard. Keep web mutations role-restricted and CSRF-protected, public ticket bodies untrusted, tracking capabilities private, and task delivery idempotent. The local support CLI and Hermes profiles share the trusted server account; profile instructions are not OS isolation. Portal tests include real HTTP/auth boundaries, delivery failure recovery, release gating and browser workflows. Never claim the fake-Hermes suite verifies live model behavior or Linux boot persistence.
+
 ## Goal
 
 This repo packages a reusable Hermes autonomous software development team for local Linux, WSL2, and remote Linux/SSH hosts. One installation can be reused across many project repos.
@@ -32,7 +38,7 @@ The package should remain project-neutral. Do not add client names, trial projec
 - `run-pm-gateway.sh`: foreground gateway fallback for hosts where `gateway start` cannot use user systemd.
 - `setup.example.env`: config-file template for non-interactive/client installs.
 - `templates/`: PM sweep and kickoff task prompt templates.
-- `project-manager/`, `frontend-designer/`, `developer/`, `tester/`, `security-tester/`: Hermes profile distributions.
+- `project-manager/`, `frontend-designer/`, `developer/`, `tester/`, `security-tester/`, `support-agent/`, `support-manager/`: Hermes profile distributions.
 - `docs/hermes-docs-cross-reference.md`: why the package uses Hermes profiles, Kanban, cron, and gateway this way.
 - `docs/setup-and-lifecycle-audit.md`: audit findings, supported-host matrix, and remaining boundaries.
 - `docs/security-testing.md`: Security Tester standards, authorization scope, workflow, optional tooling, evidence handling, and release gate.
@@ -54,6 +60,8 @@ Runtime state:
 ~/.hermes/profiles/developer
 ~/.hermes/profiles/tester
 ~/.hermes/profiles/security-tester
+~/.hermes/profiles/support-agent
+~/.hermes/profiles/support-manager
 ~/.hermes/autodev/projects/
 ~/.hermes/autodev/logs/
 ~/.hermes/scripts/
@@ -115,6 +123,8 @@ The wizard gathers shared values once and writes the right subset into:
 ~/.hermes/profiles/developer/.env
 ~/.hermes/profiles/tester/.env
 ~/.hermes/profiles/security-tester/.env
+~/.hermes/profiles/support-agent/.env
+~/.hermes/profiles/support-manager/.env
 ```
 
 Current main env keys:
@@ -151,7 +161,7 @@ Each profile distribution should include:
 
 The source distributions retain their OpenRouter defaults, including `moonshotai/kimi-k3` for Security Tester. The wizard rewrites installed model blocks when the operator selects OpenRouter, `openai-codex`, or Anthropic and lets Security Tester use a separate model ID. Its `security-testing` skill pins the reproducible OWASP/NIST baseline and report-only safety boundaries. Keep source-default changes explicit and update profile versions and user documentation when changing them.
 
-Subscription credentials are per-profile Hermes auth state, not env-file values. `scripts/setup-wizard.sh` runs `hermes -p <profile> auth add openai-codex` or `hermes -p <profile> auth add anthropic --type oauth` for all five profiles when requested. The Developer's Codex CLI login remains a separate authentication concern.
+Subscription credentials are per-profile Hermes auth state, not env-file values. `scripts/setup-wizard.sh` runs `hermes -p <profile> auth add openai-codex` or `hermes -p <profile> auth add anthropic --type oauth` for all seven profiles when requested. The Developer's Codex CLI login remains a separate authentication concern.
 
 Developer also has a source `bin/codex-network-exec`, but Hermes reserves profile-level `bin/` as runtime-owned. `scripts/install-team.sh` copies that launcher explicitly after installing the profile.
 

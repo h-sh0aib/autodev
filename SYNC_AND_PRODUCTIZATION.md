@@ -163,7 +163,7 @@ Use `README.md` for install instructions, `docs/hermes-docs-cross-reference.md` 
 
 ## Selling To Non-Technical Clients
 
-Use `wizard.sh` as the client-facing entrypoint. It safely installs or updates all five profiles, selects their Hermes provider/models, can authenticate ChatGPT/Codex or supported Claude subscription access per profile, configures env files from one prompt flow, optionally sets Git identity, writes GitHub/GitLab/Codex/Telegram/Signal values to the right profiles, bootstraps the first project, configures the local/SSH browser GUI, creates watchdog/PM sweep cron jobs, and can start the PM gateway. Security Tester can use a separately selected model while retaining the package's report-only safeguards.
+Use `wizard.sh` as the client-facing entrypoint. It safely installs or updates all seven profiles, selects their Hermes provider/models, can authenticate ChatGPT/Codex or supported Claude subscription access per profile, configures env files from one prompt flow, optionally sets Git identity, writes GitHub/GitLab/Codex/Telegram/Signal values to the right profiles, bootstraps the first project, configures the local/SSH browser GUI, creates watchdog/PM sweep cron jobs, and can start the PM gateway. Security Tester can use a separately selected model while retaining the package's report-only safeguards.
 
 Each wizard run writes a support log under `~/.hermes/autodev/logs/` with `0600` permissions. If a client setup fails, ask for the latest `setup-wizard-*.log` file.
 

@@ -1,7 +1,9 @@
 # Hermes Autonomous Development Team
 
-Reusable Hermes profile package for a five-agent autonomous software team:
+Reusable Hermes profile package for a seven-agent autonomous software team:
 
+- `support-agent`: owns customer intake, clarification, safe reproduction, and ticket replies.
+- `support-manager`: owns escalation quality, development follow-through, and verified customer resolution.
 - `project-manager`: owns planning, Kanban/repository-host coordination, monitoring, escalation, and status.
 - `frontend-designer`: uses Lovable MCP sparingly to provide initial UI guidance for high-value screens.
 - `developer`: delegates all implementation, debugging, architecture, tests, and code-aware docs to Codex.
@@ -22,7 +24,7 @@ cd hermes-autonomous-dev-team
 bash ./wizard.sh
 ```
 
-The same command works in a local terminal and in an interactive SSH session. On SSH hosts the wizard configures the browser GUI on `127.0.0.1` and prints an SSH tunnel command—no web control plane is exposed publicly. Native macOS and Windows shells are not supported; use WSL2 on Windows or a Linux host from macOS.
+The same command works in a local terminal and in an interactive SSH session. On SSH hosts the wizard configures the private Hermes administration dashboard on `127.0.0.1`. For a public website with customer support and private team controls, enable the portal described below. Native macOS and Windows shells are not supported; use WSL2 on Windows or a Linux host from macOS.
 
 The wizard handles:
 
@@ -83,6 +85,8 @@ The wizard or installer creates runtime env files at:
 ~/.hermes/profiles/developer/.env
 ~/.hermes/profiles/tester/.env
 ~/.hermes/profiles/security-tester/.env
+~/.hermes/profiles/support-agent/.env
+~/.hermes/profiles/support-manager/.env
 ```
 
 If `HERMES_HOME` is customized, owner-only metadata in
@@ -99,7 +103,7 @@ The wizard can apply one provider to every Hermes orchestration profile and opti
 - `anthropic`: use `ANTHROPIC_API_KEY`, or let the wizard run Hermes's Anthropic OAuth flow. Hermes currently documents the OAuth path as requiring Claude Max plus extra-usage credits; Claude Pro and the included Max allowance are not used by that provider path.
 - `keep`: preserve each installed profile's existing model block.
 
-Subscription authentication is stored per Hermes profile, so an interactive setup authenticates all five profiles. In non-interactive installs, set `HERMES_AUTODEV_AUTH_HERMES_SUBSCRIPTION=0` and authenticate each profile afterward; browser/device OAuth cannot safely be completed from a secrets file. If authentication is deliberately deferred, also set `HERMES_AUTODEV_RUN_DOCTOR=0`, complete the printed logins, and then run `hermes-autodev doctor` so the installation is not mistaken for ready before credentials exist.
+Subscription authentication is stored per Hermes profile, so an interactive setup authenticates all seven profiles. In non-interactive installs, set `HERMES_AUTODEV_AUTH_HERMES_SUBSCRIPTION=0` and authenticate each profile afterward; browser/device OAuth cannot safely be completed from a secrets file. If authentication is deliberately deferred, also set `HERMES_AUTODEV_RUN_DOCTOR=0`, complete the printed logins, and then run `hermes-autodev doctor` so the installation is not mistaken for ready before credentials exist.
 
 The Developer's Codex CLI lane has its own authentication. Its existing `codex login` session (normally under `~/.codex`) or `OPENAI_API_KEY` is still required even when Hermes itself uses another provider.
 
@@ -117,9 +121,33 @@ Minimum practical setup also includes:
 - `GITLAB_TOKEN`, `GITLAB_HOST`, and preferably `glab` for GitLab issues, merge requests, comments, and pipelines. Self-managed GitLab is supported by setting its base URL.
 - `TELEGRAM_BOT_TOKEN` and `TELEGRAM_ALLOWED_USERS` only if you want the PM gateway exposed through Telegram.
 
+## Public Website And Team Workspace
+
+On a Linux server with a domain pointing to it, run:
+
+```bash
+hermes-autodev portal setup --domain team.example.com
+```
+
+The setup installs an isolated Python environment and a systemd user service, prompts for an owner login, and generates the Caddy HTTPS configuration. A server administrator installs Caddy, opens ports 80/443, and enables user-service lingering once. See [the production hosting guide](docs/production-portal.md) for exact commands, upgrades, recovery, and existing-project migration.
+
+Customers visit `/` to read approved project updates and submit tickets. They receive a private tracking link for messages and status. Team members sign in at `/team` to:
+
+- See projects, named specialists, active work, blockers and release checks.
+- Give the project manager a plain-language brief.
+- Reply to tickets, request clarification, and hand work to development.
+- Publish selected project updates without exposing internal tasks or customer data.
+- Start the team or pause scheduling across all projects. Work already running may continue.
+
+Accounts have owner, support, or viewer access. Projects start private and are explicitly published by an owner. Ticket submission saves to SQLite first; a durable delivery queue retries Hermes outages using idempotent task creation. The support specialist triages, the support manager escalates, the PM coordinates implementation and independent validation, and support verifies the delivered fix before closing the conversation. Email delivery is not configured; customers use their private tracking link.
+
+Release checks cover requirements, implementation, functional tests, security, real integrations and operations. All must have passing evidence for the current commit, with a clean working tree and fresh synchronization, before the portal shows readiness. These are recorded verification claims, not a guarantee that arbitrary software is production-safe. Agents still need a clear product brief, working provider/repository credentials, and an authorized deployment target.
+
+See [department workflow and evidence](docs/department-workflow.md) for the operating contract, limitations and everyday use.
+
 ## Browser GUI
 
-The package uses Hermes' built-in dashboard rather than maintaining a second control plane. It exposes the same five profiles and their configuration, browser chat, Kanban boards, cron jobs, models, API keys, skills, and MCP settings.
+Hermes' built-in dashboard provides advanced administration of all seven profiles: configuration, browser chat, Kanban, cron, models, API keys, skills, and MCP. Keep this interface on loopback. The separate public portal provides customer support and a smaller authenticated workspace; it sends actual work to Hermes through its supported CLI.
 
 After the wizard, use the installed command from any directory. Start it on a
 local Linux/WSL2 computer:
@@ -134,7 +162,7 @@ On a remote Linux server, run the same command from the SSH session. It prints a
 ssh -N -L 9119:127.0.0.1:9119 user@server
 ```
 
-Then open `http://127.0.0.1:9119` locally. The package deliberately supports loopback binding only; use an SSH tunnel or a trusted VPN instead of exposing the dashboard port to the internet.
+Then open `http://127.0.0.1:9119` locally. The Hermes administration dashboard supports loopback binding only; use an SSH tunnel or a trusted VPN instead of exposing the dashboard port to the internet.
 
 Loopback prevents network exposure but is not a per-user boundary: another
 account with local access to the same multi-user host may be able to reach a
@@ -236,7 +264,7 @@ Each project gets its own:
 - Cron job names.
 - Kickoff task.
 
-The same `project-manager`, `frontend-designer`, `developer`, `tester`, and `security-tester` profiles can work across multiple boards because Hermes cron and Kanban tasks carry the board/workdir context.
+The same seven development and support profiles can work across multiple boards because Hermes cron and Kanban tasks carry the board/workdir context.
 
 Git worktrees are supported; project setup resolves the checkout root through Git rather than requiring a `.git` directory.
 
@@ -284,7 +312,7 @@ On an installed Linux host:
 hermes-autodev update
 ```
 
-The updater creates a Hermes backup, updates Hermes through its supported updater, fast-forwards this Git checkout, refreshes all five profiles without resetting their configuration/auth/data, restarts the GUI if it was running, and runs the doctor. It refuses to pull over a dirty checkout, so local package changes cannot be silently overwritten.
+The updater creates a Hermes backup, updates Hermes through its supported updater, fast-forwards this Git checkout, refreshes all seven profiles without resetting their configuration/auth/data, restarts the GUI if it was running, and runs the doctor. It refuses to pull over a dirty checkout, so local package changes cannot be silently overwritten.
 
 Preview versions without changing anything:
 
@@ -302,7 +330,7 @@ hermes-autodev uninstall
 ```
 
 The default uninstall makes a full backup outside `~/.hermes`, stops
-package-managed services, and removes the five package profiles plus generated
+package-managed services, and removes the seven package profiles plus generated
 scripts/state. Package projects and boards leave the live Hermes installation
 with their owning profile but remain recoverable from that backup. It does not
 delete project repositories, shared Git/SSH configuration, `gh`/`glab`
@@ -320,12 +348,16 @@ Run the release checks locally with:
 ```bash
 bash tests/static-checks.sh
 bash tests/smoke-lifecycle.sh
+python3 -m venv /tmp/autodev-test-venv
+/tmp/autodev-test-venv/bin/pip install -r portal/requirements-dev.txt
+/tmp/autodev-test-venv/bin/python -m playwright install chromium
+AUTODEV_BROWSER_TESTS=1 /tmp/autodev-test-venv/bin/python -m pytest -q tests/test_portal.py tests/test_portal_browser.py
 ```
 
 The lifecycle suite uses temporary homes, a fake Hermes/Codex installation,
 real Git repositories and a real loopback HTTP service. It covers safe reruns,
 subscription configuration, GitLab hostname detection, linked worktrees, all
-five GUI project registrations, dashboard start/health/stop, custom
+seven GUI project registrations, dashboard start/health/stop, custom
 `HERMES_HOME` rediscovery (including spaces and apostrophes), a fast-forward
 package update, backup, and guarded uninstall fallback/alias cleanup. The
 included `.gitlab-ci.yml` runs these checks for GitLab pushes and merge requests,

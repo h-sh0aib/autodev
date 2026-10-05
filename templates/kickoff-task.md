@@ -19,5 +19,7 @@ Required actions:
 7. Add dependencies so Developer waits for required design guidance, and Tester/Security Tester wait for a usable Developer handoff.
 8. If the repository lacks requirements, credentials, deployment details, security scope, or a reachable app URL, create the smallest concrete blocker or discovery task instead of guessing.
 9. Comment with a concise project operating plan: first milestone, immediate tasks, functional and security validation paths, and known risks.
+10. Assign `support-manager` a support-readiness task: known user workflows, verified troubleshooting guidance, escalation criteria, and ticket follow-through. Support-agent handles intake and support-manager owns the development handoff and resolution check.
+11. Establish a release candidate and evidence for requirements, implementation, tests, security, integrations and operations. The operations gate includes deployment procedure, rollback, backups, monitoring and the authorized target. Keep implementing and retesting approved outcomes until every gate is satisfied; then maintain the product and process support feedback.
 
 Use the detected repository host as the durable engineering record: GitHub Issues and pull requests for `github`, GitLab Issues and merge requests for `gitlab`, or Git/Kanban only for `generic`. Never run GitHub commands against GitLab or GitLab commands against GitHub. Use Kanban as the active coordination layer.

@@ -59,7 +59,7 @@ if [[ "${1:-}" == "profile" ]]; then
           shift
         fi
       done
-      [[ "${profile}" =~ ^(project-manager|frontend-designer|developer|tester|security-tester)$ ]]
+      [[ "${profile}" =~ ^(project-manager|frontend-designer|developer|tester|security-tester|support-agent|support-manager)$ ]]
       target="${HERMES_HOME}/profiles/${profile}"
       mkdir -p "${target}"
       cp "${source_dir}/config.yaml" "${source_dir}/distribution.yaml" "${source_dir}/SOUL.md" "${target}/"
@@ -73,7 +73,7 @@ if [[ "${1:-}" == "profile" ]]; then
       ;;
     delete)
       profile="${3}"
-      [[ "${profile}" =~ ^(project-manager|frontend-designer|developer|tester|security-tester)$ ]]
+      [[ "${profile}" =~ ^(project-manager|frontend-designer|developer|tester|security-tester|support-agent|support-manager)$ ]]
       # Exercise the package's Hermes-unavailable/failing deletion fallback.
       [[ "${profile}" != "security-tester" ]] || exit 1
       rm -rf -- "${HERMES_HOME}/profiles/${profile}"
@@ -252,7 +252,7 @@ EOF
 
 "${ROOT_DIR}/wizard.sh" --config "${CONFIG_FILE}" --non-interactive --skip-project --no-log
 
-for profile in project-manager frontend-designer developer tester security-tester; do
+for profile in project-manager frontend-designer developer tester security-tester support-agent support-manager; do
   [[ -f "${HERMES_HOME}/profiles/${profile}/config.yaml" ]]
   [[ -f "${HERMES_HOME}/profiles/${profile}/.env" ]]
 done
@@ -299,7 +299,7 @@ fi
 sed -i '/provider: "openai-codex"/a\  reasoning_effort: "high"' \
   "${HERMES_HOME}/profiles/project-manager/config.yaml"
 "${ROOT_DIR}/wizard.sh" --config "${CONFIG_FILE}" --non-interactive --skip-project --skip-gui --no-log
-[[ "$(grep -c '^profile update ' "${FAKE_LOG}")" -eq 5 ]]
+[[ "$(grep -c '^profile update ' "${FAKE_LOG}")" -eq 7 ]]
 grep -q 'reasoning_effort: "high"' "${HERMES_HOME}/profiles/project-manager/config.yaml"
 if grep -q -- '--force' "${FAKE_LOG}"; then
   echo "Safe wizard rerun unexpectedly forced a profile install." >&2
@@ -323,16 +323,20 @@ mkdir -p "${TEST_ROOT}/work/project-linked/packages/app"
     --no-start-gateway
 )
 grep -q 'project create' "${FAKE_LOG}"
-for profile in project-manager frontend-designer developer tester security-tester; do
+for profile in project-manager frontend-designer developer tester security-tester support-agent support-manager; do
   [[ -f "${HERMES_HOME}/autodev/fake-project-${profile}-smoke-project" ]]
 done
-[[ "$(grep -c -- ' project create ' "${FAKE_LOG}")" -eq 5 ]]
+[[ "$(grep -c -- ' project create ' "${FAKE_LOG}")" -eq 7 ]]
 [[ "$(grep -c -- '^-p project-manager cron create ' "${FAKE_LOG}")" -eq 2 ]]
 if grep -Eq -- '^-p project-manager cron (create|edit).* --profile( |$)' "${FAKE_LOG}"; then
   echo "Project setup passed the retired cron --profile option." >&2
   exit 1
 fi
 bash -n "${HERMES_HOME}/scripts/autodev_watchdog_smoke-project.sh"
+bash "${HERMES_HOME}/scripts/autodev_watchdog_smoke-project.sh" > "${TEST_ROOT}/watchdog-output.txt"
+grep -Fq 'board=smoke-project repo=' "${TEST_ROOT}/watchdog-output.txt"
+grep -Fq 'kanban --board smoke-project dispatch --max 2' "${FAKE_LOG}"
+[[ -f "${HERMES_AUTODEV_STATE_DIR}/portal.sqlite" ]]
 
 bash "${ROOT_DIR}/scripts/setup-project.sh" \
   --project-path "${TEST_ROOT}/work/project-linked" \
@@ -341,8 +345,8 @@ bash "${ROOT_DIR}/scripts/setup-project.sh" \
   --no-kickoff \
   --no-start-gateway >/dev/null
 [[ "$(grep -c -- '^-p project-manager project create ' "${FAKE_LOG}")" -eq 1 ]]
-[[ "$(grep -c -- ' project create ' "${FAKE_LOG}")" -eq 5 ]]
-[[ "$(grep -c -- ' project add-folder ' "${FAKE_LOG}")" -eq 5 ]]
+[[ "$(grep -c -- ' project create ' "${FAKE_LOG}")" -eq 7 ]]
+[[ "$(grep -c -- ' project add-folder ' "${FAKE_LOG}")" -eq 7 ]]
 
 # A server administrator may pre-create an empty, correctly owned destination.
 # Project setup should clone into it instead of rejecting the directory.
